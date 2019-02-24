@@ -8,3 +8,4 @@
 - Kathryn and more: Chracterize the DM potential from the LMC's DM Wake. 
 - Nico: Quantify Chaos in the combine potential?
 - NIco: How axion variables look in the time-dependent potential?
+- Chervin and others: Apply the BFE in Sgr and the LMC sims.
