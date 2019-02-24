@@ -6,3 +6,5 @@
 - Adrian: Build a stellar halo to study the effect of substrucure along the lines of Bullock and Jhonston.
 - Build a stellar halo to study the effect of the Wake on the stellar halo.
 - Kathryn and more: Chracterize the DM potential from the LMC's DM Wake. 
+- Nico: Quantify Chaos in the combine potential?
+- NIco: How axion variables look in the time-dependent potential?
