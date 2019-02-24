@@ -1,4 +1,4 @@
-# Project Outline and plan
+# Project outline and plan:
 
 
 ## Science questions:
