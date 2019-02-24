@@ -19,14 +19,14 @@ Additional ideas of what to do once this project is done are found [here](https:
 
 ### Implement the BFE expansion:
 
- -Noise in the coefficients.
+ - Noise in the coefficients.
     - Check computation, maybe there is a bug in the code.
     - Look at Wainberg variance methodology.
     
- -How to choose the number of coefficients in each expansion.
+ - How to choose the number of coefficients in each expansion.
     - Again think about the variance?
     
- -What particles from the LMC use to compute the potential from the LMC.
+ - What particles from the LMC use to compute the potential from the LMC.
     - First use all of them and see how many terms are needed.
     - Use the bonund particles only.
 
