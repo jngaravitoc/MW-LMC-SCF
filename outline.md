@@ -5,7 +5,7 @@
 
 - Quantify the resonances in the halo?
 - Does the m=1 mode is the disk motion with respect to the halo?
-- What does it term in the MW's expansion means? Can we find the wake potential?**
+- What does each term in the MW's expansion means? Can we find the wake potential?
 
 
 ### Time evolution of the Gravitational Potential
@@ -21,7 +21,7 @@ Additional ideas of what to do once this project is done are found [here](https:
 
  - Noise in the coefficients.
     - Check computation, maybe there is a bug in the code.
-    - Look at Wainberg variance methodology.
+    - Look at Wainberg variance method.
     
  - How to choose the number of coefficients in each expansion.
     - Again think about the variance?
