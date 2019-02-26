@@ -10,3 +10,6 @@
 - Nico: How axion variables look in the time-dependent potential?
 - Chervin and others: Apply the BFE in Sgr and the LMC sims.
 - Nico: Can we take one of the aquarius halos and add them a disk and an LMC? Using N-body sims? 
+- G: Eddie Illsutris Ids the BFE. Compare Illustris halos with ideal simulations. If the BFE expansion works with the Illustris Halos.
+- G: Weak lensing talk To Eduardo R. about this. Lensing signal with the LMC. At what radius could weak lensing signals could be contaminating by the LMC.
+- G: CMB anisotropy, any component from the LMC.
