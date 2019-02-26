@@ -3,14 +3,17 @@
 
 ## Science questions:
 
-- Quantify the resonances in the halo?
-- Does the m=1 mode is the disk motion with respect to the halo?
-- What does each term in the MW's expansion means? Can we find the wake potential?
+- Shape and density profile of the MW and LMC potential. Slices as a function of time.
+  - Not oblate, prolate or triaxial.  (need an expansion) 
+  - Inertia tensor try to fit the best ellipsoid. 
+
+- With BFEs:
+  - Can we identify Local and Global wake (maybe m=1 mode)? At t=0.
+  - Can we identify Local and Global wake (maybe m=1 mode)? At all times.
+  - Quantify the resonances in the halo? 
 
 
-### Time evolution of the Gravitational Potential
-
-### Study case: Orbits of satellite galacies and GC.
+### Study case: Orbits of satellite galacies and GC vs static MW and static MW + LMC.
 
 Additional ideas of what to do once this project is done are found [here](https://github.com/jngaravitoc/MW-LMC-SCF/blob/master/ideas.md)
 
