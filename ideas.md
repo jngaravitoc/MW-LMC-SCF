@@ -9,4 +9,4 @@
 - Nico: Quantify Chaos in the combine potential?
 - Nico: How axion variables look in the time-dependent potential?
 - Chervin and others: Apply the BFE in Sgr and the LMC sims.
-- Nico: Can we take one of the aquariuss halos and add them a disk and an LMC? Using N-body sims? 
+- Nico: Can we take one of the aquarius halos and add them a disk and an LMC? Using N-body sims? 
