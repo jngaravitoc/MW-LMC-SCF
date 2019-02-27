@@ -194,26 +194,26 @@
 \correspondingauthor{Nicol\'as Garavito-Camargo}
 \email{jngaravitoc@email.arizona.edu}
 
-\author[0000-0001-7107-1744]{Nicolas Garavito-Camargo}
+\author[0000-0001-7107-1744]{Nicolas Garavito-Camargo et al..}
 \affil{Steward Observatory, University of Arizona, 933 North Cherry Avenue,Tucson, AZ 85721, USA.}
 
-\author[0000-0003-0715-2173]{Gurtina Besla}
-\affiliation{Steward Observatory, University of Arizona, 933 North Cherry Avenue,Tucson, AZ 85721, USA.}
+%\author[0000-0003-0715-2173]{Gurtina Besla}
+%\affiliation{Steward Observatory, University of Arizona, 933 North Cherry Avenue,Tucson, AZ 85721, USA.}
 
-\author{Chervin F.P Laporte}
-\altaffiliation{CITA National Fellow}
-\affiliation{Department of Physics and Astronomy, University of Victoria, 3800 Finnerty Road, Victoria, B.C., V8P 4HN, Canada}
+%\author{Chervin F.P Laporte}
+%\altaffiliation{CITA National Fellow}
+%\affiliation{Department of Physics and Astronomy, University of Victoria, 3800 Finnerty Road, Victoria, B.C., V8P 4HN, Canada}
 
-\author[0000-0001-6244-6727]{Kathryn V. Johnston}
-\affiliation{Department of Astronomy, Columbia University, New York, NY 10027, USA.}
+%\author[0000-0001-6244-6727]{Kathryn V. Johnston}
+%\affiliation{Department of Astronomy, Columbia University, New York, NY 10027, USA.}
 
-\author{Facundo A. G\'omez}
-\affiliation{Instituto de Investigaci\'on Multidisciplinar en Ciencia y Tecnolog\'ia, Universidad de La Serena, Ra\'ul Bitr\'an 1305, La Serena, Chile.}
-\affiliation{Departamento de F\'isica y Astronom\'ia, Universidad de La Serena, Av. Juan Cisternas 1200 N, La Serena, Chile.}
+%\author{Facundo A. G\'omez}
+%\affiliation{Instituto de Investigaci\'on Multidisciplinar en Ciencia y Tecnolog\'ia, Universidad de La Serena, Ra\'ul Bitr\'an 1305, La Serena, Chile.}
+%\affiliation{Departamento de F\'isica y Astronom\'ia, Universidad de La Serena, Av. Juan Cisternas 1200 N, La Serena, Chile.}
 
-\author[0000-0002-1343-134X]{Laura L. Watkins}
-\affiliation{Space Telescope Science Institute,3700 San Martin Drive, Baltimore, MD 21218, USA}
-\affiliation{European Southern Observatory, Karl-Schwarzschild-Stra{\ss}e 2, D-85748 Garching bei M\"{u}nchen, Germany}
+\author[]{Adrian Price-Whelan}
+\affiliation{}
+\affiliation{}
 \nocollaboration
 
 %% Note that the \and command from previous versions of AASTeX is now
@@ -240,25 +240,49 @@ TBD
 
 
 
-\section{intro}
-\section{methods}
+\section{Introduction}
+
+\section{Computational Methods}
+
+\subsection{Explanation of BFE}
+
+\subsection{Time evolving potential interpolating coefficients.}
+
+
+\subsection{The combined potential of the MW and the LMC: using two expansions}
+
+How to include the LMC in the potential. Which particles from the LMC we need to
+use in order to compute the expansion on the LMC.
+
+\subsection{The Python library to compute orbits:}
+
+\subsection{How to choose the right number of terms in the BFE}
+
+How many terms should we need in the expansion.
+
+
 \section{results}
-\subsection{Density and potential shape at t=0}
-\subsection{BFE as at t=0}
-What the individual terms mean.How do they relate with the substructure that we
-identify in paper I.
+
+\subsection{The shapes of the Milky Way DM halo density \& potential in the
+presence of the Large Magellanic Cloud}
+
+\begin{itemize}
+  \item Contours of the DM density/potential.
+  \item Use the inertia tensor to try to fit ellipsoids to the DM halo shape. 
+
+\end{itemize}
+
+\subsection{Can we disentangle contributions from the Local and Global Wake and the disk motion?}
 
 
-\subsection{BFE as a function of time}
-What is the time evolution of the BFE expansion. How well this method recover
-the full N-body simulation.
+\subsection{Test case: orbits of GCs and Satellite Galaxies}
 
-\subsection{Orbit calculations from GC and satellite galaxies}
-How orbits are changed between the BFE, MW static and MW+LMC no N-body. Why we
-need the BFEs?
 
-Plane os stallites?
+\section{Discussion:}
 
+\begin{itemize}
+  \item  choose the right scale radius for the DM halos, the expansion is sensitive about this.
+\end{itemize}
 
 \section*{Acknowledgements}
 
