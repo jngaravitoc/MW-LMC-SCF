@@ -1,16 +1,19 @@
 # Project outline and plan:
 
+The paper is [here](https://github.com/jngaravitoc/MW-LMC-SCF/blob/master/doc/BFE_MWLMC.pdf)
+
 
 ## Science questions:
 
-- Shape and density profile of the MW and LMC potential. Slices as a function of time.
+- What is the shape of the density profile and the potential of the MW and LMC. 
   - Not oblate, prolate or triaxial.  (need an expansion) 
-  - Inertia tensor try to fit the best ellipsoid. 
+  - Use the inertia tensor fit the best ellipsoid and argue the need of the expansion. 
 
 - With BFEs:
   - Can we identify Local and Global wake (maybe m=1 mode)? At t=0.
   - Can we identify Local and Global wake (maybe m=1 mode)? At all times.
   - Quantify the resonances in the halo? 
+  - Integrate orbits of particles and compare with the orbits from Gadget.
 
 
 ### Study case: Orbits of satellite galacies and GC vs static MW and static MW + LMC.
@@ -22,12 +25,13 @@ Additional ideas of what to do once this project is done are found [here](https:
 
 ### Implement the BFE expansion:
 
- - Noise in the coefficients.
+ - Why high order l coefficients are so large ([notebook](https://github.com/jngaravitoc/SCF_tools/blob/master/code/computing_coefficients.ipynb)).
     - Check computation, maybe there is a bug in the code.
+    - Does these coefficients matter for the potential.
     - Look at Weinberg variance method.
     
  - How to choose the number of coefficients in each expansion.
-    - Again think about the variance?
+    - Again, think about the variance.
     
  - What particles should we use from the LMC use to compute the potential from the LMC.
     - First use all of them and see how many terms are needed.
