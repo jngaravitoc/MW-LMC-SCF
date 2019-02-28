@@ -3,7 +3,7 @@
 The paper is [here](https://github.com/jngaravitoc/MW-LMC-SCF/blob/master/doc/BFE_MWLMC.pdf)
 
 
-## Science questions:
+## Science questions and goals:
 
 - What is the shape of the density profile and the potential of the MW and LMC. 
   - Not oblate, prolate or triaxial.  (need an expansion) 
