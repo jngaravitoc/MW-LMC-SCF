@@ -59,7 +59,7 @@ The project lives [here](https://github.com/jngaravitoc/BFE_integrator)
     - Read Weinberg's variance theory.
     - A code to generate halos IC's fast. 
     
-  - Week 2-3 ():
+  - Week 2-3 (03.04-03.15):
     - Write document with the summary of the findings from the number of terms. 
     - Compute energy.
     - Implement the weighting scheme from Weinberg's 93.
