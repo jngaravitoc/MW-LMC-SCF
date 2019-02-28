@@ -21,7 +21,7 @@ The paper is [here](https://github.com/jngaravitoc/MW-LMC-SCF/blob/master/doc/BF
   - Integrate orbits of particles and compare with the orbits from Gadget.
 
 
-### Study case: Orbits of satellite galacies and GC vs static MW and static MW + LMC.
+### Study case: Orbits of satellite galaxies and GC vs static MW and static MW + LMC.
 
 Additional ideas of what to do once this project is done are found [here](https://github.com/jngaravitoc/MW-LMC-SCF/blob/master/ideas.md)
 
