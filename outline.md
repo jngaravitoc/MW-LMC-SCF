@@ -57,6 +57,12 @@ The project lives [here](https://github.com/jngaravitoc/BFE_integrator)
     - Check Coefficients computation if there is a bug in the code.
     - Compute coefficients in parallel. Run the code done in Heidelberg with Adrian on ocelote and desktop. Decide if something else needs to be done on this end.
     - Read Weinberg's variance theory.
+    - A code to generate halos IC's fast. 
+    
+  - Week 2-3 ():
+    - Write document with the summary of the findings from the number of terms. 
+    - Compute energy.
+    - Implement the weighting scheme from Weinberg's 93.
    
 
 
