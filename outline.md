@@ -5,20 +5,21 @@ The paper is [here](https://github.com/jngaravitoc/MW-LMC-SCF/blob/master/doc/BF
 
 ## Science questions and goals:
 
-- What is the shape of the density profile and the potential of the MW and LMC. 
-  - Not oblate, prolate or triaxial.  (need an expansion) 
-  - Use the inertia tensor fit the best ellipsoid and argue the need of the expansion. 
-  - Use the intertia tensor to define a coordenate sistem to apply the BFEs.
 
 
-- With BFEs:
-  - Compare the density and potential with those fomr the Sims.
-  - If the coefficients are changing if the coordinate system is rotating.
-  - What each terms mean in the expansion.
-  - Can we identify Local and Global wake (maybe m=1 mode)? At t=0.
-  - Can we identify Local and Global wake (in general)? At all times.
-  - Quantify the resonances in the halo? 
-  - Integrate orbits of particles and compare with the orbits from Gadget.
+   -What is the shape of the density profile and the potential of the MW and LMC.
+      - Not oblate, prolate or triaxial. (need an expansion)
+      - Use the inertia tensor to fit the best ellipsoid and argue the need for the expansion.
+      - It will be interesting to see if the inertia tensor defines a coordinate system to apply the BFEs.
+
+   - With BFEs:
+      - Compare the density and potential from the BFEs those from the N-body Sims.
+      - Do the coefficients change if the coordinate system is rotating?
+      - What each term in the expansion means at every time step.
+      - Can we quantify resonances in the halo?
+      - Integrate orbits of particles and compare with the orbits from Gadget.
+
+
 
 
 ### Study case: Orbits of satellite galaxies and GC vs static MW and static MW + LMC.
