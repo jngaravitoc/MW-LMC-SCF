@@ -1,0 +1,90 @@
+\documentclass[14pt]{article}
+\usepackage{amsmath}
+\usepackage{listings} % For writing code see http://ctan.org/pkg/listings
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[margin=1.0in]{geometry}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{natbib}
+
+\bibliographystyle{humannat}
+
+\pagestyle{fancy}
+
+\title{Characterizing terms with noise}
+\author{Nico Garavito-Camargo}
+
+
+\date{}
+\begin{document}
+\maketitle
+
+\section*{}
+
+\subsection{Noise source in N-body simulations}
+
+\begin{enumerate}
+  \item Noise in the expansion itself.
+  \item Random distribution of particles in the IC's of the particles. Solution:
+    Bootstrap the computation of the coefficients and it's variance.
+\end{enumerate}
+
+\subsection{Characterizing noise:}
+
+The noise in the BFE due to the discrete nature of the system was quantify in
+Weinberg 1996. Here we briefly summarize the method.
+The signal to noise of each coefficient is $S/N=\hat{a}/\sqrt{var({\hat{a}})}$
+
+\begin{equation}\label{eq:var}
+  var(\hat{a}_{n,l,m}) = m \left[ \sum_{i}^{N}m_i \Psi_{n,l,m}^2(x_i)
+   - \left(\sum_{i}^{N}m_i \Psi_{n,l,m}(x_i)\right)^2
+   \right]
+\end{equation}
+
+The first term in the right-hand side is the covariance matrix and
+the second term of Eq.\ref{eq:var} are the coefficients
+$\hat{S}_{n,l,m}^2$ and $\hat{T}_{n,l,m}^2$. $m$ is the particle
+mass and $\Psi_{nlm}$ is defined as:
+
+\begin{equation}
+  \Psi_{nlm}(x_i) = (2-\delta_{m,0})
+  \tilde{A}_{n,l}\Phi_{n,l}(r_i)Y_{l,m}(\theta_i)cos(m\phi_i)
+\end{equation}
+
+The covariance matrix is computed as::
+
+\begin{equation}
+  \tilde{a}_{nlm n'l'm'} = \hat{a}_{nlm} \hat{a}_{n'l'm'}
+\end{equation}
+
+The smoothening of the coefficients is computed as follows:
+
+\begin{equation}
+  b_{nlm}(\hat{a}_{nlm}) = \dfrac{1}{1 +
+  \frac{var(\hat{a}_{nlm})}{{\hat{a}_{nlm}}^2}}
+\end{equation}
+
+In order to characterize the noise due to the random distribution of particles
+that are sampling the potential and density.
+
+
+
+what a am I using then computing var(a) the one form the sample or the mean?
+
+\subsubsection{The BFE for the MW and the LMC:}
+
+Computed and tested with \verb+Gala+ and a parallel  C code written by me. 
+
+
+What is the different in the number of terms when doing the bootstrap and when
+not?
+
+Any difference in the amplitudes of those terms??
+
+
+\bibliography{references}
+
+
+
+\end{document}
