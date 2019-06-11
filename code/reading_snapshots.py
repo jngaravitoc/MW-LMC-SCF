@@ -27,7 +27,7 @@ def all_host_particles(xyz, vxyz, pids, pot, mass, N_host_particles):
     return xyz[host_ids], vxyz[host_ids], pids[host_ids], pot[host_ids], mass[host_ids]
 
 
-def host_sat_particles(xyz, vxyz, pids, Nhost_particles, *p):
+def host_sat_particles(xyz, vxyz, pids, pot, Nhost_particles, *p):
     """
     Function that return the host and the sat particles
     positions and velocities.
@@ -48,7 +48,33 @@ def host_sat_particles(xyz, vxyz, pids, Nhost_particles, *p):
     N_cut = sort_indexes[Nhost_particles]
     host_ids = np.where(pids<N_cut)[0]
     sat_ids = np.where(pids>=N_cut)[0]
-    return xyz[host_ids], vxyz[host_ids], pids[host_ids], xyz[sat_ids], vxyz[sat_ids], pids[sat_ids]
+    return xyz[host_ids], vxyz[host_ids], pids[host_ids], pot[host_ids], xyz[sat_ids], vxyz[sat_ids], pids[sat_ids], pot[sat_ids]
+
+
+
+def sat_particles(xyz, vxyz, pids, pot, Nhost_particles):
+    """
+    Function that return the host and the sat particles
+    positions and velocities.
+
+    Parameters:
+    -----------
+    xyz: snapshot coordinates with shape (n,3)
+    vxys: snapshot velocities with shape (n,3)
+    pids: particles ids
+    Nhost_particles: Number of host particles in the snapshot
+    Returns:
+    --------
+    xyz_mw, vxyz_mw, xyzlmc, vxyz_lmc: coordinates and velocities of
+    the host and the sat.
+
+    """
+    sort_indexes = np.sort(pids)
+    N_cut = sort_indexes[Nhost_particles]
+    host_ids = np.where(pids<N_cut)[0]
+    sat_ids = np.where(pids>=N_cut)[0]
+    return xyz[sat_ids], vxyz[sat_ids], pids[sat_ids], pot[sat_ids]
+
 
 
 def com_disk_potential(xyz, vxyz, Pdisk):
@@ -123,7 +149,7 @@ def read_MW_snap_com_coordinates(path, snap, LMC, N_halo_part, pot, **kwargs):
         MW_pot = readsnap(path+snap, 'pot', 'dm')
     if LMC == 1:
         print("Loading MW particles and LMC particles")
-        MW_pos, MW_vel, MW_ids, LMC_pos, LMC_vel, LMC_ids = host_sat_particles(MW_pos, MW_vel, MW_ids, N_halo_part)
+        MW_pos, MW_vel, MW_ids, MW_pot, LMC_pos, LMC_vel, LMC_ids, LMC_pot = host_sat_particles(MW_pos, MW_vel, MW_ids, MW_pot, N_halo_part)                                   
     
     MW_pos_cm = re_center(MW_pos, pos_cm)
     MW_vel_cm = re_center(MW_vel, vel_cm)
@@ -143,7 +169,7 @@ def read_MW_snap_com_coordinates(path, snap, LMC, N_halo_part, pot, **kwargs):
         return MW_pos_cm, MW_vel_cm, MW_ids
     
     
-def read_satellite_snap_com_coordinates(path, snap, LMC, N_halo_part, pot):
+def read_satellite_snap_com_coordinates(snap, LMC, N_halo_part, pot):
     """
     Returns the MW properties.
     
@@ -166,13 +192,13 @@ def read_satellite_snap_com_coordinates(path, snap, LMC, N_halo_part, pot):
 
     """
     
-    MW_pos = readsnap(path+snap, 'pos', 'dm')
-    MW_vel = readsnap(path+snap, 'vel', 'dm')
-    MW_ids = readsnap(path+snap, 'pid', 'dm')
+    MW_pos = readsnap(snap, 'pos', 'dm')
+    MW_vel = readsnap(snap, 'vel', 'dm')
+    MW_ids = readsnap(snap, 'pid', 'dm')
 
-    pos_disk = readsnap(path+snap, 'pos', 'disk')
-    vel_disk = readsnap(path+snap, 'vel', 'disk')
-    pot_disk = readsnap(path+snap, 'pot', 'disk')
+    pos_disk = readsnap(snap, 'pos', 'disk')
+    vel_disk = readsnap(snap, 'vel', 'disk')
+    pot_disk = readsnap(snap, 'pot', 'disk')
 
     pos_cm, vel_cm = com_disk_potential(pos_disk, vel_disk, pot_disk)
 
@@ -180,11 +206,52 @@ def read_satellite_snap_com_coordinates(path, snap, LMC, N_halo_part, pot):
         MW_pot = readsnap(path+snap, 'pot', 'dm')
     if LMC == 1:
         print("Loading MW particles and LMC particles")
-        MW_pos, MW_vel, MW_ids, LMC_pos, LMC_vel, LMC_ids = host_sat_particles(MW_pos, MW_vel, MW_ids, N_halo_part)
+        MW_pos, MW_vel, MW_ids, LMC_pos, LMC_vel, LMC_ids, LMC_pot =    host_sat_particles(MW_pos, MW_vel, MW_ids, N_halo_part)
     
     LMC_pos_cm = re_center(LMC_pos, pos_cm)
     LMC_vel_cm = re_center(LMC_vel, vel_cm)
     
     assert len(MW_pos) == N_halo_part, 'something is wrong with the number of selected particles'
+
+    return LMC_pos_cm, LMC_vel_cm, LMC_ids
+
+
+
+def read_satellite_com(snap, N_halo_part, pot):
+    """
+    Returns the MW properties.
+    
+    Parameters:
+    path : str
+        Path to the simulations
+    snap : name of the snapshot
+    LMC : boolean
+        True or False if LMC is present on the snapshot.
+    N_halo_part : int
+        NUmber of particles in the MW halo.
+    pot : booean
+        True or False if you want the potential back.
+        
+    Returns:
+    --------
+    MWpos
+    MWvel
+    MWpot *
+
+    """
+    MWLMC_pos = readsnap(snap, 'pos', 'dm')
+    MWLMC_vel = readsnap(snap, 'vel', 'dm')
+    MWLMC_ids = readsnap(snap, 'pid', 'dm')  
+    MWLMC_pot = readsnap(path+snap, 'pot', 'dm')
+    
+    print("Loading LMC particles")
+    LMC_pos, LMC_vel, LMC_ids, LMC_pot = sat_particles(MWLMC_pos,
+                                                       MWLMC_vel,
+                                                       MWLMC_ids,
+                                                       N_halo_part)
+    
+    LMC_pos_cm = re_center(LMC_pos, pos_cm)
+    LMC_vel_cm = re_center(LMC_vel, vel_cm)
+    
 
     return LMC_pos_cm, LMC_vel_cm, LMC_ids
