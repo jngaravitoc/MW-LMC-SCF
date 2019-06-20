@@ -52,7 +52,7 @@ def read_cov_elements(filename, nfiles, n, l, m, nmin=0, nmax=1000):
     ST_mean_cov_matrix = np.zeros((int((n+1)*(l+1)*(l/2.+1))))
 
     for i in range(nmin, nmax):
-        cov = np.loadtxt(filename + '{:03d}.tx'.format(i))
+        cov = np.loadtxt(filename + '{:03d}.txt'.format(i))
 
 
         Scov_matrix[:,i] = cov[:,0]
@@ -206,7 +206,26 @@ def smooth_coeff_matrix_biased(S, T, SS, TT, mass, nmax, lmax, mmax, sn):
 
 #if __name__ == "__main__":
     
+def coeff_uncorrelated(S, T, SS, TT, ST, mass, sn=0, verb=False):
+    cov_matrix = covariance_matrix_builder(S, T, SS, TT, ST, mass)
+    # SVD decomposition of the covariance matrix
+    T_rot, v, TL = linalg.svd(cov_matrix)
     
+    # Computes inverted transformation matrix
+    T_rot_inv = linalg.inv(T_rot)
+
+    # Variances of the coefficients in the uncorrelated base.
+    varS = v[0]
+    varT = v[1]
+    
+    ## uncorrelated coefficients
+    coeff_base = np.array([S, T])
+    S_unc, T_unc = np.dot(T_rot, coeff_base)
+    b_S_unc, b_T_unc = smoothing(S_unc, T_unc, varS, varT)
+
+         
+            
+    return S_unc, varS, b_S_unc
  
 
     
