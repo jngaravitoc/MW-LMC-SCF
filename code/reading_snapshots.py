@@ -255,3 +255,90 @@ def read_satellite_com(snap, N_halo_part, pot):
     
 
     return LMC_pos_cm, LMC_vel_cm, LMC_ids
+
+def COM(xyz, vxyz, m):
+    """
+    Returns the COM positions and velocities. 
+
+    \vec{R} = \sum_i^N m_i \vec{r_i} / N
+        
+    """
+
+
+    # Number of particles 
+    N = sum(m)
+
+
+    xCOM = np.sum(xyz[:,0]*m)/N
+    yCOM = np.sum(xyz[:,1]*m)/N
+    zCOM = np.sum(xyz[:,2]*m)/N
+
+    vxCOM = np.sum(vxyz[:,0]*m)/N
+    vyCOM = np.sum(vxyz[:,1]*m)/N
+    vzCOM = np.sum(vxyz[:,2]*m)/N
+    return [xCOM, yCOM, zCOM], [vxCOM, vyCOM, vzCOM]
+
+def velocities_com(pos, vel, rcom, rsphere=2.5):
+    inner_sphere = np.where()
+        
+
+def com_shrinking_sphere(pos, vel, m, delta=0.025):
+        """
+        Compute the center of mass coordinates and velocities of a halo
+        using the Shrinking Sphere Method Power et al 2003.
+        It iterates in radii until reach a convergence given by delta
+        or 1% of the total number of particles.
+
+        Parameters:
+        -----------
+        xyz: cartesian coordinates with shape (n,3)
+        vxys: cartesian velocities with shape (n,3)
+        delta(optional): Precision of the CM, D=0.025
+
+        Returns:
+        --------
+        rcm, vcm: 2 arrays containing the coordinates and velocities of
+        the center of mass with reference to a (0,0,0) point.
+
+        """
+        
+        xCM = 0.0
+        yCM = 0.0
+        zCM = 0.0
+
+        xyz = pos
+        vxyz = vel
+
+        N_i = len(xyz)
+        N = N_i
+        
+        rCOM, vCOM = COM(xyz, vxyz, m)
+        xCM_new, yCM_new, zCM_new = rCOM
+        vxCM_new, vyCM_new, vzCM_new = vCOM
+      
+
+
+        while (((np.sqrt((xCM_new-xCM)**2 + (yCM_new-yCM)**2 + (zCM_new-zCM)**2) > delta) & (N>N_i*0.01)) | (N>1000)):
+            xCM = xCM_new
+            yCM = yCM_new
+            zCM = zCM_new
+            # Re-centering sphere
+            R = np.sqrt((xyz[:,0]-xCM_new)**2 + (xyz[:,1]-yCM_new)**2 + (xyz[:,2]-zCM_new)**2)
+            Rmax = np.max(R)
+            # Reducing Sphere by its 2.5%
+            index = np.where(R<Rmax*0.75)[0]
+            xyz = xyz[index]
+            vxyz = vxyz[index]
+            m = m[index]
+            N = len(xyz)
+            #Computing new CM coordinates and velocities
+            rCOM, vCOM = COM(xyz, vxyz, m)
+            xCM_new, yCM_new, zCM_new = rCOM
+            vxCM_new, vyCM_new, vzCM_new = vCOM
+        print(Rmax)
+        
+        #elif self.prop == 'vel':
+        #    print('this is not implemented yet')
+        
+            
+        return np.array([xCM_new, yCM_new, zCM_new]), np.array([vxCM_new, vyCM_new, vzCM_new])
