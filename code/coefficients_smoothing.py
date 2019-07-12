@@ -17,7 +17,7 @@ def reshape_matrix(matrix, n, l, m):
     return col_matrix
     
 
-def read_coeff_matrix(filename, nfiles, n, l, m, nmin=0, nmax=1000):
+def read_coeff_matrix(filename, nfiles, n, l, m, nmin=0, nmax=1000, snaps=0):
 
 
     S_matrix = np.zeros((int((n+1)*(l+1)*(l/2.+1)), nfiles))
@@ -27,7 +27,11 @@ def read_coeff_matrix(filename, nfiles, n, l, m, nmin=0, nmax=1000):
     T_mean = np.zeros((int((n+1)*(l+1)*(l/2.+1))))
 
     for i in range(nmin, nmax):
-        coeff = np.loadtxt(filename + '{:03d}.txt'.format(i))
+        if snaps==0:
+            coeff = np.loadtxt(filename + '{:03d}_snap_0000.txt'.format(i))
+        elif snaps==1:
+            coeff = np.loadtxt(filename + '0000_snap_{:04d}.txt'.format(i))
+
         S_matrix[:,i] = coeff[:,0]
         T_matrix[:,i] = coeff[:,1]
         
@@ -40,7 +44,7 @@ def read_coeff_matrix(filename, nfiles, n, l, m, nmin=0, nmax=1000):
 
     return S_mean_matrix, T_mean_matrix
     
-def read_cov_elements(filename, nfiles, n, l, m, nmin=0, nmax=1000):
+def read_cov_elements(filename, nfiles, n, l, m, nmin=0, nmax=1000, snaps=0):
 
 
     Scov_matrix = np.zeros((int((n+1)*(l+1)*(l/2.+1)), nfiles))
@@ -52,7 +56,12 @@ def read_cov_elements(filename, nfiles, n, l, m, nmin=0, nmax=1000):
     ST_mean_cov_matrix = np.zeros((int((n+1)*(l+1)*(l/2.+1))))
 
     for i in range(nmin, nmax):
-        cov = np.loadtxt(filename + '{:03d}.txt'.format(i))
+    
+        if snaps==0:
+            cov = np.loadtxt(filename + '{:03d}_snap_0000.txt'.format(i))
+        elif snaps==1:
+            cov = np.loadtxt(filename + '0000_snap_{:04d}.txt'.format(i))
+
 
 
         Scov_matrix[:,i] = cov[:,0]
