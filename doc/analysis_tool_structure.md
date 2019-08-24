@@ -5,8 +5,8 @@
     - Signal to noise
     - Cross Validation, entropy
 
-- Plotting routines:
+- Plotting routines (include this in Gala):
     - density, acceleration, and potential maps.
 
-- Coefficients visualization
+- Coefficients visualization (Gala)
 - Time dependent analysis:
