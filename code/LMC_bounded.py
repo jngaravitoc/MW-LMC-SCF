@@ -18,6 +18,7 @@ def reading_particles(snap_name):
     pos = lmc_particles[:,0:3]
     vel = lmc_particles[:,3:6]
     mass = lmc_particles[:,6]
+    print('Total mass of the halo is:', np.sum(mass))
     return pos, vel, mass
 
 
@@ -30,35 +31,35 @@ def compute_scf_pot(pos, rs, nmax, lmax, mass):
     return LMC_potential
 
 
-def bound_particles(pot, pos, vel):
+def bound_particles(pot, pos, vel, ids):
     vmag_lmc = np.sqrt(vel[:,0]**2 + vel[:,1]**2 + vel[:,2]**2)
     dist_lmc = np.sqrt(pos[:,0]**2 + pos[:,1]**2 + pos[:,2]**2)
     T = vmag_lmc**2/2
     V = pot
 
-    lmc_bound = np.where(2*T+V<=0)[0]
+    lmc_bound = np.where(T+V<=0)[0]
 
-    return pos[lmc_bound], vel[lmc_bound]
+    return pos[lmc_bound], vel[lmc_bound], ids[lmc_bound]
 
 
-def find_bound_particles(pos, vel, mass, rs, nmax, lmax):
+def find_bound_particles(pos, vel, mass, ids, rs, nmax, lmax):
     N_init = len(pos)
     pot = compute_scf_pot(pos, rs, nmax, lmax, mass)
-    pos_bound, vel_bound = bound_particles(pot, pos, vel)
+    pos_bound, vel_bound, ids_bound = bound_particles(pot, pos, vel, ids)
     N_bound = len(pos_bound)
 
     print('Initial number of particles:', N_init)
     i=0
-    while (np.abs(N_init-N_bound) > (0.05*N_init)):
+    while (np.abs(N_init-N_bound) > (0.01*N_init)):
         pot = compute_scf_pot(pos_bound, rs, nmax, lmax, mass)
-        pos_bound, vel_bound = bound_particles(pot, pos_bound, vel_bound)   
+        pos_bound, vel_bound, ids_bound = bound_particles(pot, pos_bound, vel_bound, ids_bound)   
         N_init = N_bound
         N_bound = len(pos_bound)
         i+=1
         print(N_init, N_bound)
         print('Number of bound particles: {} iteration: {}'.format(N_bound, i))
 
-    return pos_bound, vel_bound, N_bound
+    return pos_bound, vel_bound, N_bound, ids_bound
 
 
 if __name__ == "__main__":

@@ -134,6 +134,7 @@ def read_MW_snap_com_coordinates(path, snap, LMC, N_halo_part, pot, **kwargs):
     
 
     """
+    print('Reading host  snapshot')
     MW_pos = readsnap(path+snap, 'pos', 'dm')
     MW_vel = readsnap(path+snap, 'vel', 'dm')
     MW_ids = readsnap(path+snap, 'pid', 'dm')
@@ -143,6 +144,7 @@ def read_MW_snap_com_coordinates(path, snap, LMC, N_halo_part, pot, **kwargs):
     pot_disk = readsnap(path+snap, 'pot', 'disk')
 
     pos_cm, vel_cm = com_disk_potential(pos_disk, vel_disk, pot_disk)
+    print('Host disk com:', pos_cm, vel_cm)
 
     if pot == 1:
         MW_pot = readsnap(path+snap, 'pot', 'dm')
@@ -190,7 +192,7 @@ def read_satellite_snap_com_coordinates(snap, LMC, N_halo_part, pot):
     MWpot *
 
     """
-    
+    print('Reading satellite snapshot')
     MW_pos = readsnap(snap, 'pos', 'dm')
     MW_vel = readsnap(snap, 'vel', 'dm')
     MW_ids = readsnap(snap, 'pid', 'dm')
@@ -202,10 +204,10 @@ def read_satellite_snap_com_coordinates(snap, LMC, N_halo_part, pot):
     pos_cm, vel_cm = com_disk_potential(pos_disk, vel_disk, pot_disk)
 
     if pot == 1:
-        MW_pot = readsnap(path+snap, 'pot', 'dm')
+        MW_pot = readsnap(snap, 'pot', 'dm')
     if LMC == 1:
         print("Loading MW particles and LMC particles")
-        MW_pos, MW_vel, MW_ids, LMC_pos, LMC_vel, LMC_ids, LMC_pot =    host_sat_particles(MW_pos, MW_vel, MW_ids, N_halo_part)
+        MW_pos, MW_vel, MW_ids, MW_pot, LMC_pos, LMC_vel, LMC_ids, LMC_pot = host_sat_particles(MW_pos, MW_vel, MW_ids, MW_pot, N_halo_part)
     
     LMC_pos_cm = re_center(LMC_pos, pos_cm)
     LMC_vel_cm = re_center(LMC_vel, vel_cm)
