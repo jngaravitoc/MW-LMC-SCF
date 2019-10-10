@@ -37,6 +37,7 @@ def host_sat_particles(xyz, vxyz, pids, pot, Nhost_particles, *p):
     vxys: snapshot velocities with shape (n,3)
     pids: particles ids
     Nhost_particles: Number of host particles in the snapshot
+    
     Returns:
     --------
     xyz_mw, vxyz_mw, xyzlmc, vxyz_lmc: coordinates and velocities of
@@ -119,11 +120,11 @@ def read_MW_snap_com_coordinates(path, snap, LMC, N_halo_part, pot, **kwargs):
     path : str
         Path to the simulations
     snap : name of the snapshot
-    LMC : boolean
+    LMC : Boolean
         True or False if LMC is present on the snapshot.
     N_halo_part : int
-        NUmber of particles in the MW halo.
-    pot : booean
+        Number of particles in the MW halo.
+    pot : Boolean
         True or False if you want the potential back.
         
     Returns:
@@ -150,6 +151,7 @@ def read_MW_snap_com_coordinates(path, snap, LMC, N_halo_part, pot, **kwargs):
         MW_pot = readsnap(path+snap, 'pot', 'dm')
     if LMC == 1:
         print("Loading MW particles and LMC particles")
+        #TODO: Make the potential as an optional parameter!
         MW_pos, MW_vel, MW_ids, MW_pot, LMC_pos, LMC_vel, LMC_ids, LMC_pot = host_sat_particles(MW_pos, MW_vel, MW_ids, MW_pot, N_halo_part)                                   
     
     MW_pos_cm = re_center(MW_pos, pos_cm)
