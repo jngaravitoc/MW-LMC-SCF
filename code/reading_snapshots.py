@@ -83,49 +83,28 @@ def read_snap_coordinates(path, snap, N_halo_part, com_frame='MW', galaxy='MW'):
         True or False if LMC is present on the snapshot.
     N_halo_part : int
         Number of particles in the MW halo.
-<<<<<<< HEAD
     pot : boolean
-=======
-    pot : Boolean
->>>>>>> fac4580ae32830a3a1d7a75357bcf1bcb5f4585c
         True or False if you want the potential back.
     com_frame : str
         Where the coordinates will be centered galactocentric (MW), on the
         satellite (sat), or in the LSR (LSR)
-        
+    galaxy : str
+        galaxy coordinates to be returned (MW) or (sat)
     Returns:
     --------
     MWpos : 
     MWvel : 
     MWpot : 
+    MWmass : 
     
     """
-<<<<<<< HEAD
     # Load data
     all_pos = readsnap(path+snap, 'pos', 'dm')
     all_vel = readsnap(path+snap, 'vel', 'dm')
     all_ids = readsnap(path+snap, 'pid', 'dm')
     all_pot = readsnap(path+snap, 'pot', 'dm')
-=======
-    print('Reading host  snapshot')
-    MW_pos = readsnap(path+snap, 'pos', 'dm')
-    MW_vel = readsnap(path+snap, 'vel', 'dm')
-    MW_ids = readsnap(path+snap, 'pid', 'dm')
 
-    pos_disk = readsnap(path+snap, 'pos', 'disk')
-    vel_disk = readsnap(path+snap, 'vel', 'disk')
-    pot_disk = readsnap(path+snap, 'pot', 'disk')
 
-    pos_cm, vel_cm = com_disk_potential(pos_disk, vel_disk, pot_disk)
-    print('Host disk com:', pos_cm, vel_cm)
-
-    if pot == 1:
-        MW_pot = readsnap(path+snap, 'pot', 'dm')
-    if LMC == 1:
-        print("Loading MW particles and LMC particles")
-        #TODO: Make the potential as an optional parameter!
-        MW_pos, MW_vel, MW_ids, MW_pot, LMC_pos, LMC_vel, LMC_ids, LMC_pot = host_sat_particles(MW_pos, MW_vel, MW_ids, MW_pot, N_halo_part)                                   
->>>>>>> fac4580ae32830a3a1d7a75357bcf1bcb5f4585c
     
     
     print("Loading MW particles and LMC particles")
@@ -161,81 +140,11 @@ def read_snap_coordinates(path, snap, N_halo_part, com_frame='MW', galaxy='MW'):
         pos_LSR = np.array([-8.34, 0, 0])
         vel_LSR = np.array([11.1,  232.24,  7.25])
         
-<<<<<<< HEAD
         print(pos_LSR)
         print(vel_LSR)
-=======
     assert len(MW_pos) == N_halo_part, 'something is wrong with the number of selected particles'
 
-    if pot == 1:
-        return MW_pos_cm, MW_vel_cm, MW_pot, MW_ids
-    else:
-        return MW_pos_cm, MW_vel_cm, MW_ids
-    
-    
-def read_satellite_snap_com_coordinates(snap, LMC, N_halo_part, pot):
-    """
-    Returns the MW properties.
-    
-    Parameters:
-    path : str
-        Path to the simulations
-    snap : name of the snapshot
-    LMC : boolean
-        True or False if LMC is present on the snapshot.
-    N_halo_part : int
-        NUmber of particles in the MW halo.
-    pot : booean
-        True or False if you want the potential back.
-        
-    Returns:
-    --------
-    MWpos
-    MWvel
-    MWpot *
-
-    """
-    print('Reading satellite snapshot')
-    MW_pos = readsnap(snap, 'pos', 'dm')
-    MW_vel = readsnap(snap, 'vel', 'dm')
-    MW_ids = readsnap(snap, 'pid', 'dm')
-
-    pos_disk = readsnap(snap, 'pos', 'disk')
-    vel_disk = readsnap(snap, 'vel', 'disk')
-    pot_disk = readsnap(snap, 'pot', 'disk')
-
-    pos_cm, vel_cm = com_disk_potential(pos_disk, vel_disk, pot_disk)
-
-    if pot == 1:
-        MW_pot = readsnap(snap, 'pot', 'dm')
-    if LMC == 1:
-        print("Loading MW particles and LMC particles")
-        MW_pos, MW_vel, MW_ids, MW_pot, LMC_pos, LMC_vel, LMC_ids, LMC_pot = host_sat_particles(MW_pos, MW_vel, MW_ids, MW_pot, N_halo_part)
-    
-    LMC_pos_cm = re_center(LMC_pos, pos_cm)
-    LMC_vel_cm = re_center(LMC_vel, vel_cm)
-    
-    assert len(MW_pos) == N_halo_part, 'something is wrong with the number of selected particles'
-
-    return LMC_pos_cm, LMC_vel_cm, LMC_ids
-
->>>>>>> fac4580ae32830a3a1d7a75357bcf1bcb5f4585c
-
-        # Values from http://docs.astropy.org/en/stable/api/astropy.coordinates.Galactocentric.html
-        pos_cm += pos_LSR
-        vel_cm += vel_LSR
-
-    print('pos COM:', pos_cm)
-    print('vel COM:', vel_cm)
-
-    pos_cm = com.re_center(MW_pos, pos_cm)
-    vel_cm = com.re_center(MW_vel, vel_cm)
-    
-        
-    assert len(MW_pos) == N_halo_part, 'something went wrong with the particle selection'
-
-
-    return pos_cm, vel_cm, pot, ids
+    return pos_cm, vel_cm, pot, mass
     
 
 
