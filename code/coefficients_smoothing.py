@@ -17,23 +17,26 @@ def reshape_matrix(matrix, n, l, m):
     return col_matrix
     
 
-def read_coeff_matrix(filename, nfiles, n, l, m, nmin=0, nmax=1000, snaps=0):
-
-
+def read_coeff_matrix(filename, nfiles, n, l, m, n_min=0, n_max=1000, snaps=0):
+    """
+    Compute the mean of the coefficients from multiple files and return the mean values.
+    """
+    assert(nfiles>=(n_max-n_min))
     S_matrix = np.zeros((int((n+1)*(l+1)*(l/2.+1)), nfiles))
     T_matrix = np.zeros((int((n+1)*(l+1)*(l/2.+1)), nfiles))
     
     S_mean = np.zeros((int((n+1)*(l+1)*(l/2.+1))))
     T_mean = np.zeros((int((n+1)*(l+1)*(l/2.+1))))
 
-    for i in range(nmin, nmax):
+    for i in range(n_min, n_max):
         if snaps==0:
+            #coeff = np.loadtxt(filename + '{:03d}.txt'.format(i))
             coeff = np.loadtxt(filename + '{:03d}_snap_0000.txt'.format(i))
         elif snaps==1:
-            coeff = np.loadtxt(filename + '0000_snap_{:04d}.txt'.format(i))
+            coeff = np.loadtxt(filename + '000_snap_{:04d}.txt'.format(i))
 
-        S_matrix[:,i] = coeff[:,0]
-        T_matrix[:,i] = coeff[:,1]
+        S_matrix[:,i-n_min] = coeff[:,0]
+        T_matrix[:,i-n_min] = coeff[:,1]
         
     for i in range(len(S_matrix[:,0])):
         S_mean[i] = np.mean(S_matrix[i])
@@ -44,7 +47,7 @@ def read_coeff_matrix(filename, nfiles, n, l, m, nmin=0, nmax=1000, snaps=0):
 
     return S_mean_matrix, T_mean_matrix
     
-def read_cov_elements(filename, nfiles, n, l, m, nmin=0, nmax=1000, snaps=0):
+def read_cov_elements(filename, nfiles, n, l, m, n_min=0, n_max=1000, snaps=0):
 
 
     Scov_matrix = np.zeros((int((n+1)*(l+1)*(l/2.+1)), nfiles))
@@ -55,18 +58,19 @@ def read_cov_elements(filename, nfiles, n, l, m, nmin=0, nmax=1000, snaps=0):
     T_mean_cov_matrix = np.zeros((int((n+1)*(l+1)*(l/2.+1))))
     ST_mean_cov_matrix = np.zeros((int((n+1)*(l+1)*(l/2.+1))))
 
-    for i in range(nmin, nmax):
+    for i in range(n_min, n_max):
     
         if snaps==0:
             cov = np.loadtxt(filename + '{:03d}_snap_0000.txt'.format(i))
+            #cov = np.loadtxt(filename + '{:03d}.txt'.format(i))
         elif snaps==1:
             cov = np.loadtxt(filename + '0000_snap_{:04d}.txt'.format(i))
 
 
 
-        Scov_matrix[:,i] = cov[:,0]
-        Tcov_matrix[:,i] = cov[:,1]
-        STcov_matrix[:,i] = cov[:,2]
+        Scov_matrix[:,i-n_min] = cov[:,0]
+        Tcov_matrix[:,i-n_min] = cov[:,1]
+        STcov_matrix[:,i-n_min] = cov[:,2]
         
     for i in range(len(Scov_matrix[:,0])):
         S_mean_cov_matrix[i] = np.mean(Scov_matrix[i])

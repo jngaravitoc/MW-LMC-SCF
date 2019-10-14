@@ -1,3 +1,9 @@
+"""
+Code to read Gagdet binary outputs.
+
+
+"""
+
 import numpy as np
 
 

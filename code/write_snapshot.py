@@ -12,7 +12,6 @@ import sys
 filename = sys.argv[1]
 particle_data = sys.argv[2]
 
-
 def write_ics(filename, nparticles, pos, vel, mass):
    ics = gadget.ICs(filename, [0,nparticles], verbose=True)
    ics.pos[:] = pos
@@ -20,7 +19,6 @@ def write_ics(filename, nparticles, pos, vel, mass):
    ics.mass[:] = np.ones(nparticles)*mass
    ics.ParticleIDs[:]=np.arange(1, nparticles+1)
    ics.write()
-
 
 data = np.loadtxt(particle_data)
 
