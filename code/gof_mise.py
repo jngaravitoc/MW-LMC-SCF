@@ -4,7 +4,7 @@ Code to compute the GOF
 """
 
 import numpy as np
-import datetime
+import time, datetime
 import scipy.special as special
 import scipy.integrate as integrate
 from joblib import Parallel, delayed
@@ -79,7 +79,7 @@ def coefficients_sum(S, T, nmax, lmax, r_s):
 
 
 
-def coefficients_sum_fast(S, T, r_s):
+def coefficients_sum_fast(S, T, order, r_s):
     """
     Faster way to compute the sums over the coefficients. 
     Just takes into account the coefficients that are non-zero
@@ -89,19 +89,21 @@ def coefficients_sum_fast(S, T, r_s):
 
     # Selects coefficients that are non-zero
     index = np.where((S**2+T**2)>0)
-    n_unique = np.unique(index[0])
+    #n_unique = np.unique(index[0])
     nmax = index[0]
     lmax = index[1]
     mmax = index[2]
     
     # initialize sum
     rho2 = 0
-    
+    #max_all = np.arange(0, nmax, 1)
+    #max=lmax
+    #_unique = nmax
+   
     # I can't skip the sum over n_p
-    for n_p in n_unique:
+    for n_p in range(0, order):
       # Simplified sum over all of the coefficients that are non-zero 
       for i in range(len(nmax)):
-        
         f = factors(nmax[i], n_p, lmax[i], r_s)
         I = integrate.quad(integrand, -1, 1, args=(nmax[i], n_p, lmax[i]))[0]
         rho2 += 2*(S[nmax[i],lmax[i],mmax[i]]*S[n_p,lmax[i],mmax[i]] + T[nmax[i],lmax[i],mmax[i]]*T[n_p,lmax[i],mmax[i]])*(-1)**mmax[i] * f * I 
@@ -171,18 +173,37 @@ def Likelihood(sn):
     return np.mean(L)
 
 
-if __name__ == "__main__":
-    densities_file = "/extra/jngaravitoc/KL_data/MW_100M_b1_dm_part_1e6_300_KL_analysis_batch"
-    file_name = "/extra/jngaravitoc/gof_test_20_fast.txt"
-    npart = 1000
-    mass = 1 / npart
-    nbatches = 100
-    sn_range = np.arange(5, 6.5, 0.5)
-    num_cores = 2
-    nmax = 20
-    lmax = 20
-    rs = 40.85
-    output = Parallel(n_jobs=num_cores)(delayed(Likelihood)(sn) for sn in range(len(sn_range)))
-    print(output)
-    write_output(file_name, output)
+def coeff_rand_generator(order):
+        # generates random coefficients with different orders
+    S = np.random.random((order, order, order))
+    T = np.random.random((order, order, order))
+    return S, T
 
+
+
+if __name__ == "__main__":
+    #densities_file = "/extra/jngaravitoc/KL_data/MW_100M_b1_dm_part_1e6_300_KL_analysis_batch"
+    #file_name = "/extra/jngaravitoc/gof_test_20_fast.txt"
+    #npart = 1000
+    #mass = 1 / npart
+    #nbatches = 100
+    #sn_range = np.arange(5, 6.5, 0.5)
+    #num_cores = 2
+    #nmax = 20
+    #lmax = 20
+    #rs = 40.85
+    #output = Parallel(n_jobs=num_cores)(delayed(Likelihood)(sn) for sn in range(len(sn_range)))
+    #print(output)
+    #write_output(file_name, output)
+    order = int(sys.argv[1])
+    S, T = coeff_rand_generator(order)
+    t1 = time.clock()
+    rho1 = coefficients_sum_fast(S, T, order, 10)
+    t2 = time.clock()
+    rho2 = coefficients_sum(S, T, order, order, 10)
+    t3 = time.clock()
+    dt1 = t2-t1
+    dt2 = t3-t2
+    print('fast:', dt1)
+    print('slow:', dt2)
+    print(rho1, rho2)
