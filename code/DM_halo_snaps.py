@@ -19,7 +19,7 @@ def write_snapshot(filename, pos, vel):
     np.savetxt(filename, data, header=header)
     
 def distance_cut(pos, vel, rmin, rmax):
-    r = np.sum(pos**2, axis=-1)
+    r = np.sqrt(pos[:,0]**2+pos[:,1]**2+pos[:,2]**2)
     rcut = np.where((r<rmax) & (r>rmin))
     return pos[rcut], vel[rcut]
 
@@ -36,7 +36,7 @@ if __name__ == "__main__":
             'MWLMC5_b1_dm_halo_020_200.txt', 'MWLMC5_b0_dm_halo_020_200.txt',
             'MWLMC4_b1_dm_halo_020_200.txt', 'MWLMC4_b0_dm_halo_020_200.txt',
             'MWLMC3_b1_dm_halo_020_200.txt', 'MWLMC3_b0_dm_halo_020_200.txt']
-    for i in range(4, len(filenames)):
+    for i in range(0, len(filenames)):
         MW_particles = reading_snapshots.read_MW_snap_com_coordinates(path, snapshots[i], LMC=True, N_halo_part=N_halo_part, pot=True)
         pos_MW = MW_particles[0]
         vel_MW = MW_particles[1]

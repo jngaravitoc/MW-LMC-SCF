@@ -1,5 +1,5 @@
 import numpy as np
-from pygadgetreader import read_snap
+from pygadgetreader import readsnap
 from jellyfish import com
 
 
