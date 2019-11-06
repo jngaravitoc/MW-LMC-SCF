@@ -5,12 +5,14 @@ import biff
 import coefficients_smoothing
 
 
-def smooth_coeff(coeff_path, cov_path, ni, nf, nmax, lmax, mmax, sn, pmass):
+def smooth_coeff(coeff_path, cov_path, ni, nf, nmax, lmax, mmax, sn, pmass, snap):
     nfiles = nf-ni
     S, T = coefficients_smoothing.read_coeff_matrix(coeff_path,  nfiles, nmax, \
-                                                   lmax, mmax, n_min=ni, n_max=nf)
+                                                   lmax, mmax, n_min=ni,\
+                                                   n_max=nf, snaps=snap)
     SS, TT, ST = coefficients_smoothing.read_cov_elements(cov_path,  nfiles, nmax,\
-                                                         lmax, mmax, n_min=ni, n_max=nf)
+                                                         lmax, mmax, n_min=ni,\
+                                                         n_max=nf, snaps=snap)
     S_smooth, T_smooth, N_smooth = coefficients_smoothing.smooth_coeff_matrix(S, T, SS, TT, ST, pmass, nmax, lmax, mmax, sn)
     return S_smooth, T_smooth, N_smooth
 

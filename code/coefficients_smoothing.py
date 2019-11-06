@@ -29,12 +29,7 @@ def read_coeff_matrix(filename, nfiles, n, l, m, n_min=0, n_max=1000, snaps=0):
     T_mean = np.zeros((int((n+1)*(l+1)*(l/2.+1))))
 
     for i in range(n_min, n_max):
-        if snaps==0:
-            #coeff = np.loadtxt(filename + '{:03d}.txt'.format(i))
-            coeff = np.loadtxt(filename + '{:03d}_snap_0000.txt'.format(i))
-        elif snaps==1:
-            coeff = np.loadtxt(filename + '000_snap_{:04d}.txt'.format(i))
-
+        coeff = np.loadtxt(filename + '{:04d}_snap_{:04d}.txt'.format(i, snaps))
         S_matrix[:,i-n_min] = coeff[:,0]
         T_matrix[:,i-n_min] = coeff[:,1]
         
@@ -60,13 +55,7 @@ def read_cov_elements(filename, nfiles, n, l, m, n_min=0, n_max=1000, snaps=0):
 
     for i in range(n_min, n_max):
     
-        if snaps==0:
-            cov = np.loadtxt(filename + '{:03d}_snap_0000.txt'.format(i))
-            #cov = np.loadtxt(filename + '{:03d}.txt'.format(i))
-        elif snaps==1:
-            cov = np.loadtxt(filename + '0000_snap_{:04d}.txt'.format(i))
-
-
+        cov = np.loadtxt(filename + '{:04d}_snap_{:04d}.txt'.format(i, snaps))
 
         Scov_matrix[:,i-n_min] = cov[:,0]
         Tcov_matrix[:,i-n_min] = cov[:,1]
