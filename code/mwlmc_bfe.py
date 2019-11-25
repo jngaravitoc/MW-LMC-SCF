@@ -97,7 +97,22 @@ def plot_bfe(figname, qbfe, y_grid, z_grid, cmap, cbar_label, Ncoeff, title):
 #def disk_potential():
 
 #def shells_evaluation():
+def Anl(n, l):
+    knl = 0.5*n*(n+4*l+3) + (l+1)*(2*l+1)
+    A_nl = - 2**(8*l+6)/(4*np.pi*knl) * (special.factorial(n)*(n+2*l+3/2.)*(special.gamma(2*l+3/2.))**2)/(special.gamma(n+4*l+3))
+    return A_nl
 
+def Anl_array(nmax, lmax):
+    A_nl_array = np.zeros((nmax, lmax))
+    for j in range(nmax):
+        for i in range(lmax):
+            A_nl_array[j][i] = Anl(j, i)
+    return A_nl_array
+
+def coeff_energy(ax, S, T, m, nmax, lmax, vmin, vmax):
+    A_nl = Anl_array(nmax, lmax)
+    A = (S[:,:,m]**2 + T[:,:,m]**2)**0.5
+    return A/A_nl
 
 
 
