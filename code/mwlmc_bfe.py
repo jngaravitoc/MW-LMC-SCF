@@ -5,7 +5,7 @@ import biff
 import coefficients_smoothing
 
 
-def smooth_coeff(coeff_path, cov_path, ni, nf, nmax, lmax, mmax, sn, pmass, snap):
+def smooth_coeff(coeff_path, cov_path, ni, nf, nmax, lmax, mmax, sn, pmass, snap, sn_out=0):
     nfiles = nf-ni
     S, T = coefficients_smoothing.read_coeff_matrix(coeff_path,  nfiles, nmax, \
                                                    lmax, mmax, n_min=ni,\
@@ -13,9 +13,13 @@ def smooth_coeff(coeff_path, cov_path, ni, nf, nmax, lmax, mmax, sn, pmass, snap
     SS, TT, ST = coefficients_smoothing.read_cov_elements(cov_path,  nfiles, nmax,\
                                                          lmax, mmax, n_min=ni,\
                                                          n_max=nf, snaps=snap)
-    S_smooth, T_smooth, N_smooth = coefficients_smoothing.smooth_coeff_matrix(S, T, SS, TT, ST, pmass, nmax, lmax, mmax, sn)
-    return S_smooth, T_smooth, N_smooth
+    if sn_out==0:
+        S_smooth, T_smooth, N_smooth = coefficients_smoothing.smooth_coeff_matrix(S, T, SS, TT, ST, pmass, nmax, lmax, mmax, sn)
+        return S_smooth, T_smooth, N_smooth
 
+    elif sn_out==1:
+        S_smooth, T_smooth, N_smooth, SN_coeff = coefficients_smoothing.smooth_coeff_matrix(S, T, SS, TT, ST, pmass, nmax, lmax, mmax, sn, sn_out)
+        return S_smooth, T_smooth, N_smooth, SN_coeff
 
 def grid(box_size, nbins):
     y_grid = np.linspace(-box_size/2., box_size/2., nbins)

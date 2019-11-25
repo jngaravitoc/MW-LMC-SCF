@@ -105,7 +105,7 @@ def read_snap_coordinates(path, snap, N_halo_part, com_frame='MW', galaxy='MW'):
         if galaxy == 'MW':
             LMC_pos, LMC_vel, LMC_ids, LMC_pot, LMC_mass = sat_particles(all_pos, all_vel, all_ids, all_pot, all_mass, N_halo_part)
             pos_cm, vel_cm  = com.CM(LMC_pos, LMC_vel, LMC_mass)
-        pos_cm, vel_cm  = com.CM(pos, vel, mass)
+        pos_cm, vel_cm  = com.CM(pos, vel, np.ones(len(mass)))
 
     elif com_frame=='LSR':
         print('Computing coordinates in the LSR frame')

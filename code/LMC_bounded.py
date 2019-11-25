@@ -17,9 +17,14 @@ def reading_particles(snap_name):
     lmc_particles = np.loadtxt(snap_name)
     pos = lmc_particles[:,0:3]
     vel = lmc_particles[:,3:6]
-    mass = lmc_particles[:,6]
+    ids = lmc_particles[:,6]
+    mass = lmc_particles[:,7]
+    Mtot = np.sum(mass)
+    rand = np.random.randint(0, len(mass), 100000)
+    mass_rand_part = (Mtot/1E5)*np.ones(100000)
     print('Total mass of the halo is:', np.sum(mass))
-    return pos, vel, mass
+    print('Total mass of the sampled halo is:', np.sum(mass_rand_part))
+    return pos[rand], vel[rand], mass_rand_part, ids[rand]
 
 
 def compute_scf_pot(pos, rs, nmax, lmax, mass):
@@ -72,24 +77,26 @@ if __name__ == "__main__":
     rs = float(sys.argv[5])
 
     
-    pos, vel, mass = reading_particles(snapname)
+    pos, vel, mass, ids = reading_particles(snapname)
     print('Snapshot loaded')
     print(pos[0])
     print(vel[0])
     print(mass[0])
-    pos_bound, vel_bound, N_bound = find_bound_particles(pos,
-                                                         vel,
-                                                         mass,
-                                                         rs,
-                                                         nmax,
-                                                         lmax)
+    pos_bound, vel_bound, N_bound, ids_bound = find_bound_particles(pos,
+                                                                    vel,
+                                                                    mass,
+                                                                    ids,
+                                                                    rs,
+                                                                    nmax,
+                                                                    lmax)
     print('Bound particles computed')
     
     
     print(pos_bound[0])
     print(vel_bound[0])
     lmc_bound = np.array([pos_bound[:,0], pos_bound[:,1], pos_bound[:,2], 
-                          vel_bound[:,0], vel_bound[:,1], vel_bound[:,2]]).T
+                          vel_bound[:,0], vel_bound[:,1], vel_bound[:,2],
+                          ids_bound]).T
     
     np.savetxt(out_name, lmc_bound)
     

@@ -104,7 +104,7 @@ def smoothing(S, T, varS, varT):
         bt=0
     return bs, bt
 
-def smoothing_coeff_uncorrelated(cov_matrix, S, T, sn=0, verb=False):
+def smoothing_coeff_uncorrelated(cov_matrix, S, T, sn=0, verb=False, sn_out=0):
     # SVD decomposition of the covariance matrix
     T_rot, v, TL = linalg.svd(cov_matrix)
     
@@ -122,7 +122,7 @@ def smoothing_coeff_uncorrelated(cov_matrix, S, T, sn=0, verb=False):
     S_unc_smooth = S_unc*b_S_unc
     T_unc_smooth = T_unc*b_T_unc
     SN_coeff_unc = (S_unc**2/varS)**0.5
-        
+    SN_coeff = SN_coeff_unc
     S_smooth, T_smooth = np.dot(T_rot_inv, np.array([S_unc_smooth, T_unc_smooth]))
     
     if verb==True:
@@ -136,33 +136,55 @@ def smoothing_coeff_uncorrelated(cov_matrix, S, T, sn=0, verb=False):
         S_smooth = 0
         T_smooth = 0
         n=0
+        SN_coeff = 0
     
-            
-    return S_smooth, T_smooth, n
-    
-def smooth_coeff(S, T, SS, TT, ST, mass, verb=False, sn=0):
-    cov_matrix = covariance_matrix_builder(S, T, SS, TT, ST, mass)
-    S_smooth, T_smooth, n_coeff = smoothing_coeff_uncorrelated(cov_matrix, S, T, sn, verb)
-    
-    return S_smooth, T_smooth, n_coeff
+    if sn_out ==0 : 
+        return S_smooth, T_smooth, n
+    elif sn_out == 1:
+        return S_smooth, T_smooth, n, SN_coeff
 
-def smooth_coeff_matrix(S, T, SS, TT, ST, mass, nmax, lmax, mmax, sn):
+    
+def smooth_coeff(S, T, SS, TT, ST, mass, verb=False, sn=0, sn_out=0):
+    cov_matrix = covariance_matrix_builder(S, T, SS, TT, ST, mass)
+    if sn_out==0:
+        S_smooth, T_smooth, n_coeff = smoothing_coeff_uncorrelated(cov_matrix, S, T, sn, verb, sn_out)
+        return S_smooth, T_smooth, n_coeff
+    elif sn_out == 1:
+        S_smooth, T_smooth, n_coeff, sn_coeff  = smoothing_coeff_uncorrelated(cov_matrix, S, T, sn, verb, sn_out)
+        return S_smooth, T_smooth, n_coeff, sn_coeff
+
+def smooth_coeff_matrix(S, T, SS, TT, ST, mass, nmax, lmax, mmax, sn, sn_out):
     S_matrix_smooth = np.zeros((nmax+1, lmax+1, lmax+1))
     T_matrix_smooth = np.zeros((nmax+1, lmax+1, lmax+1))
+    SN_coeff = np.zeros((nmax+1, lmax+1, lmax+1))
     n_coefficients = 0
     for n in range(nmax+1):
         for l in range(lmax+1):
             for m in range(l+1):
-                S_matrix_smooth[n][l][m], T_matrix_smooth[n][l][m], n_coeff = smooth_coeff(S[n][l][m],
+                if sn_out==0:
+                    S_matrix_smooth[n][l][m], T_matrix_smooth[n][l][m], n_coeff = smooth_coeff(S[n][l][m],
                                                                                   T[n][l][m], 
                                                                                   SS[n][l][m], 
                                                                                   TT[n][l][m],
                                                                                   ST[n][l][m],
                                                                                   mass, verb=False, 
-                                                                                  sn=sn)
+                                                                                  sn=sn,
+                                                                                  sn_out=sn_out)
+                elif sn_out==1:
+                    S_matrix_smooth[n][l][m], T_matrix_smooth[n][l][m], n_coeff, SN_coeff[n][l][m] = smooth_coeff(S[n][l][m],
+                                                                                  T[n][l][m], 
+                                                                                  SS[n][l][m], 
+                                                                                  TT[n][l][m],
+                                                                                  ST[n][l][m],
+                                                                                  mass, verb=False, 
+                                                                                  sn=sn,
+                                                                                  sn_out=sn_out)
                 n_coefficients += n_coeff
-    return S_matrix_smooth, T_matrix_smooth, n_coefficients
+    if sn_out == 0:
+        return S_matrix_smooth, T_matrix_smooth, n_coefficients
     
+    elif sn_out == 1:
+        return S_matrix_smooth, T_matrix_smooth, n_coefficients, SN_coeff
  
 def smoothing_biased(cov_matrix, coeff, m, sn):
     """
