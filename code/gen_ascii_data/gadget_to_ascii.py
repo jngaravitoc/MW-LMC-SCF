@@ -4,7 +4,6 @@ Code to write ascii snapshots from Gadget binary 2 format.
 to-do:
 ======
 
-- Same mass in satellite and host
 - Use bound particles of the host to compute the expansion?
 
 """
@@ -23,10 +22,10 @@ def truncate_halo(pos, vel, mass, ids, rcut):
     rcut_index = np.where(r_halo<rcut)[0]
     return pos[rcut_index], vel[rcut_index], mass[rcut_index], ids[rcut_index]
 
-def sample_halo(pos, vel, mass, n_halo_part, npart_sample):
+def sample_halo(pos, vel, mass, npart_sample):
     
-
-    N_random = np.random.randint(0, len(pos), npart_sample)
+    n_halo_part = len(pos)
+    N_random = np.random.randint(0, n_halo_part, npart_sample)
     	
     mass_fraction = n_halo_part/npart_sample		
     part_mass = mass*mass_fraction
@@ -46,11 +45,12 @@ def npart_satellite(pos_sat, vel_sat, ids_sat, pmass_sat, pmass_host):
     # new number of particles of satellite
     n_part_sat = int(sat_tot_mass/pmass_host)
     # new particles mass
-    print(init_sat_part, n_part_sat)
+    print('Initial number of satellite particles: ', init_sat_part)
+    print('Final number of satellite particles after sampling', n_part_sat)
     rand = np.random.randint(0, init_sat_part, n_part_sat)
     # new particles mass
     new_part_mass = sat_tot_mass/n_part_sat
-    return pos_sat[rand], vel_sat[rand], ids_sat[rand], new_part_mass*np.ones(n_part_sat)
+    return pos_sat[rand], vel_sat[rand], new_part_mass*np.ones(n_part_sat), ids_sat[rand]
 
 
 
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     sample = 0
     sample_lmc = 0
     #for i in range(0, len(snap_names)):
-    for i in range(0, 2):
+    for i in range(1, 8):
         halo = rs.read_snap_coordinates(path, snap_names[i], n_halo_part, com_frame='MW', galaxy='MW')
         # read_snap_coordinates returns pos, vel, pot, mass
         pos_halo_tr, vel_halo_tr, mass_tr, ids_tr = truncate_halo(halo[0], halo[1], halo[3], halo[4], rcut_halo)
@@ -128,8 +128,10 @@ if __name__ == "__main__":
         # Outs: 
         #out_snap_host = 'MW_{}_{}'.format(int(len(pos_halo_tr)/1E6), snap_names[i])
         out_snap_sat= 'LMC_{}_{}'.format(int(len(pos_sat_em)/1E6), snap_names[i])
+        #out_snap_sat= 'LMC_{}_{}'.format(int(len(satellite[0])/1E6), snap_names[i])
 
         #write_log([n_halo_part, halo[3][0], len(pos_sample), mass_sample], [len(pos_sat_tr[0]), satellite[3][0], len(pos_sat_em), mass_sat_em])
         #write_snap_txt(out_path_MW, out_snap_host, pos_halo_tr, vel_halo_tr, mass_tr, ids_tr)
         write_snap_txt(out_path_LMC, out_snap_sat, pos_sat_em, vel_sat_em, mass_sat_em, ids_sat_em)
+        #write_snap_txt(out_path_LMC, out_snap_sat, satellite[0], satellite[1], satellite[3], satellite[4])
         
