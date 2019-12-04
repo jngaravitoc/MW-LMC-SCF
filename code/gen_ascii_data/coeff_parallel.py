@@ -13,19 +13,23 @@ from gala.potential.scf._computecoeff import STnlm_discrete, STnlm_var_discrete
 class Coeff_parallel(object):
     def __init__(self, pos, mass, r_s, var):
         self.pos = pos
-        self.mass = np.ascontiguousarray(mass)
+        self.mass = np.ascontiguousarray(mass).astype("float64")
         self.r_s = r_s
         self.var = var
         self.r = np.sqrt(np.sum(np.ascontiguousarray(self.pos)**2, axis=-1))
-        self.s = np.ascontiguousarray(self.r) / r_s
-        self.phi = np.arctan2(np.ascontiguousarray(self.pos[:,1]), np.ascontiguousarray(self.pos[:,0]))
-        self.X = np.ascontiguousarray(self.pos[:,2] / self.r)
+        self.s = np.ascontiguousarray(self.r / r_s).astype("float64")
+        self.phi = np.arctan2(np.ascontiguousarray(self.pos[:,1]), np.ascontiguousarray(self.pos[:,0])).astype("float64")
+        self.X = np.ascontiguousarray(self.pos[:,2] / self.r).astype("float64")
 
     def compute_coeffs_discrete_parallel(self, n, l, m):
+        print(type(self.s[0]))
+        print(type(self.phi[0]))
+        print(type(self.X[0]))
+        print(type(self.mass[0]))
         S, T = STnlm_discrete(self.s, self.phi, self.X, self.mass, n, l, m)
 
         if self.var == True:
-            varS, varT, varST  = STnlm_var_discrete(self.s, self.phi, self.X, self.mass, n, l, m)
+            varS, varT, varST = STnlm_var_discrete(self.s, self.phi, self.X, self.mass, n, l, m)
             return S, T, varS, varT, varST
         else:
             return S, T
