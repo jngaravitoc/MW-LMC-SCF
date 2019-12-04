@@ -29,11 +29,14 @@ def reading_particles(snap_name):
 
 
 def compute_scf_pot(pos, rs, nmax, lmax, mass):
+    """
+    TODO: Parallelize this function here!
+    """
     G_gadget = 43007.1
     S, T = biff.compute_coeffs_discrete(np.ascontiguousarray(pos).astype(float),
                                         mass, nmax, lmax, rs)
 
-    LMC_potential = biff.potential(np.ascontiguousarray(pos), S, T, M=1, r_s=rs, G=G_gadget)
+    LMC_potential = biff.potential(np.ascontiguousarray(pos).astype(float), S, T, M=1, r_s=rs, G=G_gadget)
     return LMC_potential
 
 

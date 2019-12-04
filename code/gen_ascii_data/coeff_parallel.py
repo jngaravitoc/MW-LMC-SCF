@@ -13,13 +13,13 @@ from gala.potential.scf._computecoeff import STnlm_discrete, STnlm_var_discrete
 class Coeff_parallel(object):
     def __init__(self, pos, mass, r_s, var):
         self.pos = pos
-        self.mass = mass
+        self.mass = np.ascontiguousarray(mass)
         self.r_s = r_s
         self.var = var
         self.r = np.sqrt(np.sum(np.ascontiguousarray(self.pos)**2, axis=-1))
-        self.s = self.r / r_s
+        self.s = np.ascontiguousarray(self.r) / r_s
         self.phi = np.arctan2(np.ascontiguousarray(self.pos[:,1]), np.ascontiguousarray(self.pos[:,0]))
-        self.X = np.ascontiguousarray(self.pos[:,2]) / self.r
+        self.X = np.ascontiguousarray(self.pos[:,2] / self.r)
 
     def compute_coeffs_discrete_parallel(self, n, l, m):
         S, T = STnlm_discrete(self.s, self.phi, self.X, self.mass, n, l, m)

@@ -50,7 +50,7 @@ def npart_satellite(pos_sat, vel_sat, ids_sat, pmass_sat, pmass_host):
     rand = np.random.randint(0, init_sat_part, n_part_sat)
     # new particles mass
     new_part_mass = sat_tot_mass/n_part_sat
-    return pos_sat[rand], vel_sat[rand], new_part_mass*np.ones(n_part_sat), ids_sat[rand]
+    return pos_sat[rand], vel_sat[rand], new_part_mass*np.ones(n_part_sat, dtype=float), ids_sat[rand]
 
 
 
@@ -107,14 +107,14 @@ if __name__ == "__main__":
         # read_snap_coordinates returns pos, vel, pot, mass
         pos_halo_tr, vel_halo_tr, mass_tr, ids_tr = truncate_halo(halo[0], halo[1], halo[3], halo[4], rcut_halo)
 
-        satellite = rs.read_snap_coordinates(path, snap_names[i], n_halo_part, com_frame='sat', galaxy='sat')
+        #satellite = rs.read_snap_coordinates(path, snap_names[i], n_halo_part, com_frame='sat', galaxy='sat')
         
         print("**************************")
         print(snap_names[i])
         #print(pos_cm, vel_cm)
         print("**************************")
 
-        pos_sat_tr, vel_sat_tr, mass_sat_tr, ids_sat_tr = truncate_halo(satellite[0], satellite[1], satellite[3], satellite[4], rcut_halo)
+        #pos_sat_tr, vel_sat_tr, mass_sat_tr, ids_sat_tr = truncate_halo(satellite[0], satellite[1], satellite[3], satellite[4], rcut_halo)
         
         #f sample == 1:
         #   pos_sample, vel_sample, mass_sample = sample_halo(pos_halo_tr, vel_halo_tr, halo[3][0], n_halo_part, n_part_sample)
