@@ -37,6 +37,16 @@ author: github/jngaravitoc
         * : fast to implement
         ** : may need some time to implement
 
+
+    - known issues:
+        - currently multiprocessing return the following error when many
+          particles are used: 
+          struct.error: 'i' format requires -2147483648 <= number <= 2147483647
+
+          This is a known issue of multiprocessing that apparently is solved in
+          python3.8 
+          see :
+            https://stackoverflow.com/questions/47776486/python-struct-error-i-format-requires-2147483648-number-2147483647
 """
 
 import numpy as np
@@ -127,7 +137,7 @@ if __name__ == "__main__":
         # read_snap_coordinates returns pos, vel, pot, mass
         pos_halo_tr, vel_halo_tr, mass_tr, ids_tr = g2a.truncate_halo(halo[0], halo[1], halo[3], halo[4], rcut_halo)
        
-        #pos_halo_tr, vel_halo_tr, mass_tr = g2a.sample_halo(pos_halo_tr, vel_halo_tr, mass_tr, npart_sample)
+        pos_halo_tr, vel_halo_tr, mass_tr = g2a.sample_halo(pos_halo_tr, vel_halo_tr, mass_tr, npart_sample)
 
         #satellite = reads.read_snap_coordinates(args.in_path, args.snapname+"{:03d}".format(i), args.n_halo_part, com_frame='sat', galaxy='sat')
 
@@ -194,13 +204,6 @@ if __name__ == "__main__":
         pool = schwimmbad.choose_pool(mpi=args.mpi,
                                       processes=args.n_cores)
         #results = cop.main(pool, pos_host_sat, mass_array, args.nmax, args.lmax, args.rs, var=True)
-        print(type(args.nmax))
-        print(type(args.lmax))
-        print(type(pos_halo_tr[0,0]))
-        print(type(mass_tr.astype(float)))
-        print(mass_tr[0])
-        print(len(pos_halo_tr))
-        print(len(mass_tr))
         pos = pos_halo_tr
         mass = mass_tr
         results = main(pool, args.nmax, args.lmax, args.rs, var=True)
