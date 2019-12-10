@@ -138,7 +138,7 @@ def smoothing_coeff_uncorrelated(cov_matrix, S, T, sn=0, verb=False, sn_out=0):
         n=0
         SN_coeff = 0
     
-    if sn_out ==0 : 
+    if sn_out == 0: 
         return S_smooth, T_smooth, n
     elif sn_out == 1:
         return S_smooth, T_smooth, n, SN_coeff
