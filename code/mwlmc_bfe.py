@@ -1,6 +1,8 @@
 
 import numpy as np
+from scipy import special
 import matplotlib.pyplot as plt
+
 import biff
 import coefficients_smoothing
 
