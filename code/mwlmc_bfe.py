@@ -113,8 +113,11 @@ def Anl_array(nmax, lmax):
 
 def coeff_energy(S, T, m, nmax, lmax):
     A_nl = Anl_array(nmax, lmax)
-    A = (S[:,:,m]**2 + T[:,:,m]**2)**0.5
-    return A/A_nl
+    if m==0:
+        A = (S[:,:,m]**2 + T[:,:,m]**2)**0.5/A_nl
+    else:
+        A = (S[:,:,m]**2 + T[:,:,m]**2)**0.5/(2*A_nl)
+    return A
 
 
 
