@@ -507,7 +507,7 @@ class Kinematics:
             return beta_grid
     
     def shell_NN_galactic(self, lbins, bbins, n_n, d_slice, shell_width, quantity,\
-                          relative=False, LSR=False, **kwargs):
+                          relative=False, LSR=False, lmin=-np.pi, lmax=np.pi, **kwargs):
         
         """
         Returns a 2d histogram of the anisotropy parameter in galactic coordinates.
@@ -543,7 +543,7 @@ class Kinematics:
 
         ## Defining the 
         d_b_rads = np.linspace(-np.pi/2., np.pi/2., bbins+1)
-        d_l_rads = np.linspace(-np.pi, np.pi, lbins+1)
+        d_l_rads = np.linspace(lmin, lmax, lbins+1)
         ## Defining the 2d arrays for the velocity dispersions.
         if ((quantity == 'dispersions') | (quantity == 'mean')):
             sigma_r_grid = np.zeros((lbins, bbins))
