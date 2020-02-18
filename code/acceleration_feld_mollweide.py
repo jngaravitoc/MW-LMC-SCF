@@ -184,6 +184,7 @@ def acceleration_a_plot(ar, ap, at, atan, almc, amw, title='', v1=0, v2=0, fig_n
         plt.savefig(fig_name, bbox_inches='tight')
         
 
+#def load_coefficients(path, filename, sn):
 
 
 if __name__ == "__main__":
