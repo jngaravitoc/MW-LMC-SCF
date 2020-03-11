@@ -21,60 +21,138 @@ import numpy as np
 import biff
 import coefficients_smoothing
 
-
+## TODO : work with gala
 ## Load S and T
-def load_scf_coefficients(coeff_files, cov_files, nmax, lmax, mmax, min_sample, max_sample, pmass, sn):
+
+def load_scf_coefficients(coeff_files, cov_files, nmax, lmax, 
+        mmax, min_sample, max_sample, pmass, sn):
     """
     Load coefficients.
+    TODO : REMOVE THIS FUNCTION WHEN SCRIPT IS FULLY WORKING 
     """
     
     ncoeff_sample = max_sample - min_sample 
     print(pmass)
-    S, T = coefficients_smoothing.read_coeff_matrix(coeff_files, ncoeff_sample,\
-                                                            nmax, lmax, mmax,\
-                                                            min_sample, max_sample, snaps=0)
-    SS, TT, ST = coefficients_smoothing.read_cov_elements(cov_files, ncoeff_sample,\
-                                                            nmax, lmax, mmax, min_sample, max_sample, snaps=0)
+    S, T = coefficients_smoothing.read_coeff_matrix(
+            coeff_files, ncoeff_sample, nmax, lmax, mmax,
+            min_sample, max_sample, snaps=0)
+
+    SS, TT, ST = coefficients_smoothing.read_cov_elements(
+            cov_files, ncoeff_sample, nmax, lmax, mmax, 
+            min_sample, max_sample, snaps=0)
     
-    S_smooth, T_smooth, N_smooth = coefficients_smoothing.smooth_coeff_matrix(S, T, SS, TT, ST,\
-                                                                              pmass, nmax, lmax, mmax, sn)
+    S_smooth, T_smooth, N_smooth = coefficients_smoothing.smooth_coeff_matrix(
+            S, T, SS, TT, ST, pmass, nmax, lmax, mmax, sn)
+
     return S_smooth, T_smooth
 
+
+def load_scf_coefficients_cov(coeff_files, nmax, lmax, 
+        mmax, min_sample, max_sample, pmass, sn):
+    """
+    Load smoothed coefficients
+
+    Parameters:
+    =========
+    coeff_files : str
+        path to coefficients files
+    nmax : int
+        nmax order of the expansion
+    lmax : int
+        lmax order of the expansion
+    mmax : int   
+        mmax order of the expansion
+    min_sample : int
+        minimum value of variance sample 
+    max_sample : int
+        maximum value of variance sample 
+    pmass : float
+        particle mass
+    sn : float
+        signal-to-noise
+
+    Return:
+    =======
+
+    Ssmooth : smoothed coefficients
+    Tsmooth : smoothed coefficients
+
+    """
+    
+    ncoeff_sample = max_sample - min_sample 
+    print(pmass)
+    S, T, SS, TT, ST = coefficients_smoothing.read_coeffcov_matrix(
+            coeff_files, ncoeff_sample, nmax, lmax, mmax,
+            min_sample, max_sample, snaps=0)
+    
+    S_smooth, T_smooth, N_smooth = coefficients_smoothing.smooth_coeff_matrix(
+            S, T, SS, TT, ST, pmass, nmax, lmax, mmax, sn)
+
+    return S_smooth, T_smooth
+
+
 ## grid to compute densities
-def grid_density(box_size, ngrid_points):
+def grid(box_size, ngrid_points, dim):
     r_grid = np.linspace(-box_size/2, box_size/2, ngrid_points)
-    x_grid, y_grid, z_grid = np.meshgrid(r_grid, r_grid, r_grid)
-    nbins = len(r_grid)
-    return x_grid, y_grid, z_grid
-
-
+    if dim==2:
+        x_grid, y_grid = np.meshgrid(r_grid, r_grid)
+        nbins = len(y_grid)
+        return x_grid, y_grid, nbins
+    elif dim==3:
+        x_grid, y_grid, z_grid = np.meshgrid(r_grid, r_grid, r_grid)
+        nbins = len(y_grid)
+        return x_grid, y_grid, z_grid, nbins
 
 ## Compute densities
-def scf_density_mwlmc(x, y, z, Smw, Tmw, Slmc, Tlmc, nbins, rs_mw, rs_lmc, lmc_com):
-    dens_all = np.zeros((nbins, nbins, nbins))
+def scf_density_grid(
+        x, y, z, Smw, Tmw, Slmc, Tlmc, nbins, rs_mw, rs_lmc, 
+        lmc_com, quantity, G=1):
+    
+    q_all = np.zeros((nbins, nbins, nbins))
     for i in range(nbins):
         for j in range(nbins):
             for k in range(nbins):
                 # These line is flipping x with y!
-                dens_all[i][j][k] = biff.density(np.array([[x[0,i,0]-lmc_com[0]],\
-                                                           [y[j,0,0]-lmc_com[1]],\
-                                                           [z[0,0,k]-lmc_com[2]]]).T,
-                                                 Slmc, Tlmc, M=1,r_s=rs_lmc) + \
-                                    biff.density(np.array([[x[0,i,0]], [y[j,0,0]], [z[0,0,k]]]).T,
-                                                 Smw, Tmw, M=1, r_s=rs_mw)
-    return dens_all.flatten()
+                xyz_lmc = np.array(
+                        [[x[0,i,0]-lmc_com[0]], 
+                        [y[j,0,0]-lmc_com[1]], 
+                        [z[0,0,k]-lmc_com[2]]]).T
+                xyz = np.array(
+                        [[x[0,i,0]], 
+                        [y[j,0,0]], 
+                        [z[0,0,k]]]).T
+
+                if quantity == "density":
+                    q_all[i][j][k] = 
+                        biff.density(xyz_lmc, Slmc, Tlmc, M=1, r_s=rs_lmc) 
+                        + biff.density(xyz, Smw, Tmw, M=1, r_s=rs_mw)
+
+                if quantity == "potential":
+                    q_all[i][j][k] = 
+                        biff.potential(xyz_lmc, Slmc, Tlmc, M=1, r_s=rs_lmc, G=G) 
+                        + biff.potential(xyz, Smw, Tmw, M=1, r_s=rs_mw, G=G)
+
+                if quantity == "acceleration":
+                    almc = biff.gradient(xyz_lmc, Slmc, Tlmc, M=1, r_s=rs_lmc, G=G) 
+                    amw = biff.gradient(xyz, Smw, Tmw, M=1, r_s=rs_mw, G=G)
+                    q_all[i][j][k] = np.sqrt(np.sum(almc**2)) 
+                        + np.sqrt(np.sum(amw**2))
+
+    return q_all.flatten()
 
 
-## Compute densities
+## Compute densities general 
+## TODO: add off-set
+def scf_density(x_grid, y_grid, z_grid, S, T, r_s_mw):
+    xyz = np.ascontiguousarray(np.double(
+        np.array([x_grid.flatten(), y_grid.flatten(), z_grid.flatten()]).T))
 
-def scf_density_mw(x_grid, y_grid, z_grid, S, T, r_s_mw):
-    xyz = np.ascontiguousarray(np.double(np.array([x_grid.flatten(), y_grid.flatten(), z_grid.flatten()]).T))
     dens_ratio_all = biff.density(xyz, S, T, M=1, r_s=r_s_mw)
+
     return dens_ratio_all
 
 ## Write results.
-def write_density(file_name, rho):
-    
+def write_density(file_name, rho):    
     np.savetxt(file_name, np.array(rho))
     return 0
 
