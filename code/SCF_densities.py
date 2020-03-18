@@ -35,14 +35,14 @@ def load_scf_coefficients(coeff_files, cov_files, nmax, lmax,
     print(pmass)
     S, T = coefficients_smoothing.read_coeff_matrix(
             coeff_files, ncoeff_sample, nmax, lmax, mmax,
-            min_sample, max_sample, snaps=0)
+            min_sample, max_sample, snaps=90)
 
     SS, TT, ST = coefficients_smoothing.read_cov_elements(
             cov_files, ncoeff_sample, nmax, lmax, mmax, 
-            min_sample, max_sample, snaps=0)
+            min_sample, max_sample, snaps=90)
     
     S_smooth, T_smooth, N_smooth = coefficients_smoothing.smooth_coeff_matrix(
-            S, T, SS, TT, ST, pmass, nmax, lmax, mmax, sn)
+            S, T, SS, TT, ST, pmass, nmax, lmax, mmax, sn, sn_out=0)
 
     return S_smooth, T_smooth
 
@@ -101,7 +101,7 @@ def grid(box_size, ngrid_points, dim):
     elif dim==3:
         x_grid, y_grid, z_grid = np.meshgrid(r_grid, r_grid, r_grid)
         nbins = len(y_grid)
-        return x_grid, y_grid, z_grid, nbins
+        return x_grid, y_grid, z_grid
 
 ## Compute densities
 def scf_density_grid(
@@ -123,19 +123,20 @@ def scf_density_grid(
                         [z[0,0,k]]]).T
 
                 if quantity == "density":
-                    q_all[i][j][k] = 
-                        biff.density(xyz_lmc, Slmc, Tlmc, M=1, r_s=rs_lmc) 
+                    q_all[i][j][k] = \
+                        biff.density(xyz_lmc, Slmc, Tlmc, M=1, r_s=rs_lmc) \
                         + biff.density(xyz, Smw, Tmw, M=1, r_s=rs_mw)
 
                 if quantity == "potential":
-                    q_all[i][j][k] = 
-                        biff.potential(xyz_lmc, Slmc, Tlmc, M=1, r_s=rs_lmc, G=G) 
+                    q_all[i][j][k] = \
+                        biff.potential(xyz_lmc, Slmc, Tlmc, M=1, r_s=rs_lmc,
+                                G=G) \
                         + biff.potential(xyz, Smw, Tmw, M=1, r_s=rs_mw, G=G)
 
                 if quantity == "acceleration":
                     almc = biff.gradient(xyz_lmc, Slmc, Tlmc, M=1, r_s=rs_lmc, G=G) 
                     amw = biff.gradient(xyz, Smw, Tmw, M=1, r_s=rs_mw, G=G)
-                    q_all[i][j][k] = np.sqrt(np.sum(almc**2)) 
+                    q_all[i][j][k] = np.sqrt(np.sum(almc**2)) \
                         + np.sqrt(np.sum(amw**2))
 
     return q_all.flatten()
@@ -151,6 +152,13 @@ def scf_density(x_grid, y_grid, z_grid, S, T, r_s_mw):
 
     return dens_ratio_all
 
+def scf_potential(x_grid, y_grid, z_grid, S, T, r_s_mw):
+    xyz = np.ascontiguousarray(np.double(
+        np.array([x_grid.flatten(), y_grid.flatten(), z_grid.flatten()]).T))
+
+    pot_ratio_all = biff.potential(xyz, S, T, M=1, r_s=r_s_mw, G=1)
+
+    return dens_ratio_all
 ## Write results.
 def write_density(file_name, rho):    
     np.savetxt(file_name, np.array(rho))
@@ -159,11 +167,11 @@ def write_density(file_name, rho):
 
 if __name__ == "__main__":
     
-    scf_coef_files = '../data/MW/MW_lmc_unbound/mwlmc_unbound_BFE_2T_V_1e6_300_coeff_sample_0'
-    scf_cov_files =  '../data/MW/MW_lmc_unbound/mwlmc_unbound_BFE_2T_V_1e6_300_covmat_sample_0'
+    scf_coef_files = '../data/interim/BFE/MWLMC3/bfe_MWLMC_unbound_81_MWLMC3_100M_new_b1_coeff_sample_'
+    scf_cov_files =  '../data/interim/BFE/MWLMC3/bfe_MWLMC_unbound_81_MWLMC3_100M_new_b1_covmat_sample_'
     
-    scf_coef_files_lmc ='../data/LMC/BFE_bound/LMC_1M_bound_2T_V_BFE_coeff_sample_0'
-    scf_cov_files_lmc = '../data/LMC/BFE_bound/LMC_1M_bound_2T_V_BFE_covmat_sample_0'
+    scf_coef_files_lmc = '../data/interim/BFE/MWLMC3/bfe_LMC3_bound_b0_coeff_sample_'
+    scf_cov_files_lmc = '../data/interim/BFE/MWLMC3/bfe_LMC3_bound_b0_covmat_sample_'
     
     nmax = 20
     lmax = 20
@@ -171,15 +179,19 @@ if __name__ == "__main__":
     
     init = 0
     final = 10
-    box_size = 200
-    nbins = 301
+    box_size = 400
+    nbins = 501
     rs_mw = 40.85
     rs_lmc = 10
-    pmass = 1.1996922E-6
+    #pmass = 1.1996922E-6
+    pmass = 1.577212515257997438e-06
     sn = 4
     sn_lmc = 10
-    density_fname = "rho_mwlmc_bfe_in_100.txt"
-    
+    density_fname = "pot_mwlmc_bfe_in_bs400_500_bins.txt"
+    grid_dim = 3
+    quantity = "potential"
+    G = 1
+
     xlmc_com = 7.57664148 - 9.19391488
     ylmc_com = 0.72792051 - 42.1269949
     zlmc_com = -31.24426422 - (-3.31300547)
@@ -189,7 +201,7 @@ if __name__ == "__main__":
     Ssmw, Tsmw = load_scf_coefficients(scf_coef_files, scf_cov_files, nmax, lmax, mmax, init, final, pmass, sn)
     Sslmc, Tslmc = load_scf_coefficients(scf_coef_files_lmc, scf_cov_files_lmc, nmax, lmax, mmax, init, final, pmass, sn_lmc)
 
-    x, y, z = grid_density(box_size, nbins)
+    x, y, z = grid(box_size, nbins, grid_dim)
     #dens = scf_density_mw(x, y, z, Ss, Ts, rs_mw)
-    dens_all = scf_density_mwlmc(x, y, z, Ssmw, Tsmw, Sslmc, Tslmc, nbins, rs_mw, rs_lmc, lmc_com)
+    dens_all = scf_density_grid(x, y, z, Ssmw, Tsmw, Sslmc, Tslmc, nbins, rs_mw, rs_lmc, lmc_com, quantity, G)
     write_density(density_fname, dens_all)
