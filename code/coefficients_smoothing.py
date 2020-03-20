@@ -41,7 +41,31 @@ def read_coeff_matrix(filename, nfiles, n, l, m, n_min=0, n_max=1000, snaps=0):
     T_mean_matrix = reshape_matrix(T_mean, n, l, m)
 
     return S_mean_matrix, T_mean_matrix
-    
+
+
+def read_coeffcov_matrix(filename, nfiles, n, l, m, snaps=0):
+    """
+    Compute the mean of the coefficients from multiple files and return the mean values.
+    """
+
+    coeff = np.loadtxt(filename + '_{:03d}.txt'.format(snaps))
+    S = coeff[:,0]
+    T = coeff[:,2]
+    Scov = coeff[:,1]
+    Tcov = coeff[:,3]
+    STcov = coeff[:,4]
+        
+
+    S_matrix = reshape_matrix(S, n, l, m)
+    T_matrix = reshape_matrix(T, n, l, m)
+    Svar_matrix = reshape_matrix(Scov, n, l, m)
+    Tvar_matrix = reshape_matrix(Tcov, n, l, m)
+    STvar_matrix = reshape_matrix(STcov, n, l, m)
+
+    return S_matrix, T_matrix, Svar_matrix, Tvar_matrix, STvar_matrix
+
+
+
 def read_cov_elements(filename, nfiles, n, l, m, n_min=0, n_max=1000, snaps=0):
 
 
@@ -253,4 +277,36 @@ def coeff_uncorrelated(S, T, SS, TT, ST, mass, sn=0, verb=False):
  
 
     
-
+def get_coefficients(
+        LMC_model, anisotropy, component, snap, sn, 
+        mass, nmax=20, lmax=20, mmax=20, sn_out=0):
+    """
+    Parameters:
+    ----------
+    LMC_model : str
+        LMC3, LMC4, LMC5, LMC6
+    anisotropy: str
+        isotropic, radial
+    component : str
+        LMC, MW, MWLMC
+    snap : int
+        snap number
+    sn : float
+        signal to noise cut
+    mass :
+        particle mass
+        # TODO: read this from the file
+    """
+    path = "/home/xzk/work/github/time-dependent-BFE/data"
+    
+    if LMC_model == 'LMC5':
+        if component == 'LMC':
+            full_path = path + '/MWLMC5_LMC/BFE_LMC5_b1Sat_snap'
+        elif component == 'MW':
+            full_path = path + '/MWLMC5_MW/BFE_MWLMC5_b1snap'
+        elif component == 'MWLMC':
+            full_path = path + '/MWLMC5_MWLMC/BFE_LMC5_b1HostSatUnbound_snap'
+          
+    S, T, SS, TT, ST = read_coeffcov_matrix(full_path, 1, nmax, lmax, mmax, snaps=snap)
+    Ssmooth, Tsmooth, N = smooth_coeff_matrix(S, T, SS, TT, ST, mass, nmax, lmax, mmax, sn=sn, sn_out=sn_out)
+    return Ssmooth, Tsmooth, N
