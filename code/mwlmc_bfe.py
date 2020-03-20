@@ -1,4 +1,4 @@
-
+# Make this code general for potential, density and acceleration
 import numpy as np
 from scipy import special
 import matplotlib.pyplot as plt
