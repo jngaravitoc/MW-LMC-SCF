@@ -19,6 +19,7 @@ Things to do:
 
 import numpy as np
 import biff
+import datetime
 import coefficients_smoothing
 
 ## TODO : work with gala
@@ -103,6 +104,19 @@ def grid(box_size, ngrid_points, dim):
         nbins = len(y_grid)
         return x_grid, y_grid, z_grid
 
+def grid_spherical(N, rin, rout):
+    ncomp = int(N**(1/3.))
+    print(ncomp)
+    phi = 2*np.linspace(0, 1, ncomp)*np.pi
+    theta = np.arccos(2*np.linspace(0, 1, ncomp)-1)
+    r = rin + np.linspace(0, 1, ncomp)**1/3.  * (rout-rin)
+    R, T, P = np.meshgrid(r, theta, phi)
+    x = R*np.sin(T)*np.sin(P)
+    y = R*np.sin(T)*np.cos(P)
+    z = R*np.cos(T)
+    return np.ascontiguousarray(np.array([x.flatten(), y.flatten(), z.flatten()]).T)
+
+
 ## Compute densities
 def scf_density_grid(
         x, y, z, Smw, Tmw, Slmc, Tlmc, nbins, rs_mw, rs_lmc, 
@@ -129,9 +143,9 @@ def scf_density_grid(
 
                 if quantity == "potential":
                     q_all[i][j][k] = \
-                        biff.potential(xyz_lmc, Slmc, Tlmc, M=1, r_s=rs_lmc,
+                        biff.potential(np.ascontiguousarray(xyz_lmc), Slmc, Tlmc, M=1, r_s=rs_lmc,
                                 G=G) \
-                        + biff.potential(xyz, Smw, Tmw, M=1, r_s=rs_mw, G=G)
+                        + biff.potential(np.ascontiguousarray(xyz), Smw, Tmw, M=1, r_s=rs_mw, G=G)
 
                 if quantity == "acceleration":
                     almc = biff.gradient(xyz_lmc, Slmc, Tlmc, M=1, r_s=rs_lmc, G=G) 
@@ -140,6 +154,32 @@ def scf_density_grid(
                         + np.sqrt(np.sum(amw**2))
 
     return q_all.flatten()
+
+def scf_density_grid_fast(
+        x, y, z, Smw, Tmw, Slmc, Tlmc, nbins, rs_mw, rs_lmc, 
+        lmc_com, quantity, G=1):
+    
+    q_all = np.zeros((nbins, nbins, nbins))
+    xyz_lmc = np.array([x-lmc_com[0], 
+                        y-lmc_com[1], 
+                        z-lmc_com[2]]).T
+    xyz = np.array([x,y,z]).T
+    print(len(xyz_lmc[:,0]))
+    print(xyz_lmc[:,0])
+    if quantity == "density":
+        q_all = biff.density(np.ascontiguousarray(xyz_lmc), Slmc, Tlmc, M=1, r_s=rs_lmc) \
+                + biff.density(np.ascontiguousarray(xyz), Smw, Tmw, M=1, r_s=rs_mw)
+
+    if quantity == "potential":
+        q_all = biff.potential(np.ascontiguousarray(xyz_lmc), Slmc, Tlmc, M=1, r_s=rs_lmc, G=G) \
+                + biff.potential(np.ascontiguousarray(xyz), Smw, Tmw, M=1, r_s=rs_mw, G=G)
+
+    if quantity == "acceleration":
+        almc = biff.gradient(xyz_lmc, Slmc, Tlmc, M=1, r_s=rs_lmc, G=G) 
+        amw = biff.gradient(xyz, Smw, Tmw, M=1, r_s=rs_mw, G=G)
+        q_all = np.sqrt(np.sum(almc**2, axis=1)) + np.sqrt(np.sum(amw**2, axis=1))
+
+    return q_all
 
 
 ## Compute densities general 
@@ -160,36 +200,38 @@ def scf_potential(x_grid, y_grid, z_grid, S, T, r_s_mw):
 
     return dens_ratio_all
 ## Write results.
-def write_density(file_name, rho):    
-    np.savetxt(file_name, np.array(rho))
+def write_density(file_name, rho, x, y, z):    
+    np.savetxt(file_name, np.array([rho, x, y, z]).T)
     return 0
 
 
 if __name__ == "__main__":
     
-    scf_coef_files = '../data/interim/BFE/MWLMC3/bfe_MWLMC_unbound_81_MWLMC3_100M_new_b1_coeff_sample_'
-    scf_cov_files =  '../data/interim/BFE/MWLMC3/bfe_MWLMC_unbound_81_MWLMC3_100M_new_b1_covmat_sample_'
+    #scf_coef_files = '../data/interim/BFE/MWLMC3/bfe_MWLMC_unbound_81_MWLMC3_100M_new_b1_coeff_sample_'
+    #scf_cov_files =  '../data/interim/BFE/MWLMC3/bfe_MWLMC_unbound_81_MWLMC3_100M_new_b1_covmat_sample_'
     
-    scf_coef_files_lmc = '../data/interim/BFE/MWLMC3/bfe_LMC3_bound_b0_coeff_sample_'
-    scf_cov_files_lmc = '../data/interim/BFE/MWLMC3/bfe_LMC3_bound_b0_covmat_sample_'
+    #scf_coef_files_lmc = '../data/interim/BFE/MWLMC3/bfe_LMC3_bound_b0_coeff_sample_'
+    #scf_cov_files_lmc = '../data/interim/BFE/MWLMC3/bfe_LMC3_bound_b0_covmat_sample_'
     
-    nmax = 20
-    lmax = 20
-    mmax = 20
+    #nmax = 20
+    #lmax = 20
+    #mmax = 20
     
     init = 0
     final = 10
     box_size = 400
-    nbins = 501
+    rmin = 20
+    rmax = 30
+    nbins = 512000
     rs_mw = 40.85
     rs_lmc = 10
     #pmass = 1.1996922E-6
     pmass = 1.577212515257997438e-06
     sn = 4
     sn_lmc = 10
-    density_fname = "pot_mwlmc_bfe_in_bs400_500_bins.txt"
+    density_fname = "test_mwlmc_bfe_in_bs400_500_bins.txt"
     grid_dim = 3
-    quantity = "potential"
+    quantity = "density"
     G = 1
 
     xlmc_com = 7.57664148 - 9.19391488
@@ -197,11 +239,40 @@ if __name__ == "__main__":
     zlmc_com = -31.24426422 - (-3.31300547)
     lmc_com = [xlmc_com, ylmc_com, zlmc_com]
 
+     
+    Smw, Tmw, N = coefficients_smoothing.get_coefficients('LMC5', 'isotropic', 'MW', snap=110, sn=4, mass=1.844E-6)
+    #Slmc, Tlmc, N = coefficients_smoothing.get_coefficients('LMC5', 'isotropic', 'LMC', snap=110, sn=4, mass=1.2E-6)
+    #Smwlmc, Tmwlmc, N = coefficients_smoothing.get_coefficients('LMC5', 'isotropic', 'MWLMC', snap=110, sn=4, mass=1.844E-6)
+    Slmc = np.zeros((1,1,1))
+    Tlmc = np.zeros((1,1,1))
+    #Smono = np.zeros((1,1,1))
+    #Tmono = np.zeros((1,1,1))
+    #Smono[0,0,0] = Smw[0,0,0]
+    #Tmono[0,0,0] = Tmw[0,0,0]
+    #x, y, z = grid(500, 200, 3)
+    #dens_all_fast = scf_density_grid_fast(x.flatten(), y.flatten(), z.flatten(), Smwlmc, Tmwlmc, Slmc, Tlmc, 200, rs_mw, rs_lmc, lmc_com, quantity, G)
+    #pot_all_fast = scf_density_grid_fast(x.flatten(), y.flatten(), z.flatten(), Smwlmc, Tmwlmc, Slmc, Tlmc, 200, rs_mw, rs_lmc, lmc_com, 'potential', G)
+    #density_fname = "rho_mw5_bfe_{}_bs_{}.txt".format(nbins, 500)
+    #write_density(density_fname, dens_all_fast, x.flatten(), y.flatten(), z.flatten())
+    #density_fname = "pot_mw5_bfe_{}_bs_.txt".format(nbins, 500)
+    #write_density(density_fname, pot_all_fast, x.flatten(), y.flatten(), z.flatten())
     
-    Ssmw, Tsmw = load_scf_coefficients(scf_coef_files, scf_cov_files, nmax, lmax, mmax, init, final, pmass, sn)
-    Sslmc, Tslmc = load_scf_coefficients(scf_coef_files_lmc, scf_cov_files_lmc, nmax, lmax, mmax, init, final, pmass, sn_lmc)
-
-    x, y, z = grid(box_size, nbins, grid_dim)
-    #dens = scf_density_mw(x, y, z, Ss, Ts, rs_mw)
-    dens_all = scf_density_grid(x, y, z, Ssmw, Tsmw, Sslmc, Tslmc, nbins, rs_mw, rs_lmc, lmc_com, quantity, G)
-    write_density(density_fname, dens_all)
+    for i in range(5, 301, 5):
+        print("radius", i)
+        pos = grid_spherical(nbins, i-2.5, i+2.5)
+        x = pos[:,0]
+        y = pos[:,1]
+        z = pos[:,2]
+        #dens = scf_density_mw(x, y, z, Ss, Ts, rs_mw)
+    
+        #print(print(datetime.datetime.now().time()))
+        #dens_all = scf_density_grid(x, y, z, Ssmw, Tsmw, Sslmc, Tslmc, int(nbins**(1/3.))+1, rs_mw, rs_lmc, lmc_com, quantity, G)
+        print(datetime.datetime.now().time())
+        dens_all_fast = scf_density_grid_fast(x, y, z, Smw, Tmw, Slmc, Tlmc, int(nbins**(1/3.))+1, rs_mw, rs_lmc, lmc_com, quantity, G)
+        pot_all_fast = scf_density_grid_fast(x, y, z, Smw, Tmw, Slmc, Tlmc,  int(nbins**(1/3.))+1, rs_mw, rs_lmc, lmc_com, 'potential', G)
+        print(datetime.datetime.now().time())
+        density_fname = "rho_mw5_bfe_{}_r_{}.txt".format(nbins, i)
+        write_density(density_fname, dens_all_fast, x, y, z)
+        density_fname = "pot_mw5_bfe_{}_r_{}.txt".format(nbins, i)
+        write_density(density_fname, pot_all_fast, x, y, z)
+    
