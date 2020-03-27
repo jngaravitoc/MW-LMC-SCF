@@ -88,7 +88,6 @@ def compute_density_contour(dens, nbins, x_grid, y_grid, z_grid, rmax=300, rmin=
         if (max_r < rmax) & (max_r > rmin) & (N_dots > N_min):
             # Assuring the continuity of the contour by looking at relative
             # distances between the sorted array of distances.
-            print("1")
             args_d = np.argsort(r_shell)
             r_sort = np.sort(r_shell)
             r_sort_shift = np.zeros(len(r_sort))
@@ -96,14 +95,11 @@ def compute_density_contour(dens, nbins, x_grid, y_grid, z_grid, rmax=300, rmin=
             r_sort_shift[:-1] = r_sort[1:]
             r_sort_shift[-1] = r_sort[-1]
             dr = np.abs(r_sort - r_sort_shift)
-            print(np.max(dr), np.median(dr))
             # if max dr is larger than  5 median(dr) remove those points
             if np.max(dr) > 5:
-                print("3")
                 r_cut = r_sort[np.argmax(dr)]
                 # Distance at which the contours is broken
                 #r_cut = r_shell[largest_shift]
-                print(r_cut)
                 index_cut = np.where(r_shell < r_cut)
                 N_dots = len(index_cut[0])
                 if N_dots > N_min:
@@ -111,7 +107,6 @@ def compute_density_contour(dens, nbins, x_grid, y_grid, z_grid, rmax=300, rmin=
                     index_dens1.append(index_dens[index_cut])
                     r_shell_mean.append(np.median(r_shell[index_cut]))
             else:
-                print("2")
                 N_dots_r.append(N_dots)
                 index_dens1.append(index_dens)
                 r_shell_mean.append(np.median(r_shell))
@@ -151,7 +146,6 @@ def compute_halo_shape(dens_contour, x_grid, y_grid, z_grid):
     shell_pos = np.array([x_grid[dens_contour], y_grid[dens_contour], z_grid[dens_contour]]).T
     eigvec, eigval, s, q = jellyfish.axis_ratios(shell_pos)
     N_dots = len(shell_pos[:,0])
-    print("Number of points in grid:", N_dots)
     axis = (3*eigval/N_dots)**0.5
     return eigvec, axis, s, q
 
@@ -307,7 +301,6 @@ def compute_mhd(r_ell, contours, x, y, z, figname):
     for i in range(len(r_ell)):
         R.append(r_ell[i])
         eigves, axis, sr, qr = compute_halo_shape(contours[i], x, y, z)
-        print(sr, qr)
         pos_ell = jellyfish.ellipse_3dcartesian(axis, eigves)
         xyz_c = np.array([x[contours[i]], y[contours[i]], z[contours[i]]]).T
         xyz_f = np.array([pos_ell[:,:,0].flatten(), pos_ell[:,:,1].flatten(), pos_ell[:,:,2].flatten()]).T
