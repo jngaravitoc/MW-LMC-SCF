@@ -49,7 +49,13 @@ def grid_points(nbins, dmin, dmax, dim='3d'):
 		return x_grid, y_grid
 
 
-def compute_density_contour(dens, nbins, x_grid, y_grid, z_grid, rmax=300, N_min=300):
+def com(x, y, z):
+    xcom = np.mean(x)
+    ycom = np.mean(y)
+    zcom = np.mean(z)
+    return np.array([xcom, ycom, zcom])
+
+def compute_density_contour(dens, nbins, x_grid, y_grid, z_grid, rmax=300, rmin=10, N_min=300):
     """
     Compute density contours
     Parameters:
@@ -79,10 +85,37 @@ def compute_density_contour(dens, nbins, x_grid, y_grid, z_grid, rmax=300, N_min
         if N_dots > N_min: 
             r_shell = (x_grid[index_dens]**2 + y_grid[index_dens]**2 + z_grid[index_dens]**2)**0.5
             max_r = np.max(r_shell)
-        if (max_r < rmax) & (N_dots > N_min):
-            index_dens1.append(index_dens)
-            r_shell_mean.append(np.median(r_shell))
-            N_dots_r.append(N_dots)
+        if (max_r < rmax) & (max_r > rmin) & (N_dots > N_min):
+            # Assuring the continuity of the contour by looking at relative
+            # distances between the sorted array of distances.
+            print("1")
+            args_d = np.argsort(r_shell)
+            r_sort = np.sort(r_shell)
+            r_sort_shift = np.zeros(len(r_sort))
+            # Comparing an array with its next element : idea de Elena
+            r_sort_shift[:-1] = r_sort[1:]
+            r_sort_shift[-1] = r_sort[-1]
+            dr = np.abs(r_sort - r_sort_shift)
+            print(np.max(dr), np.median(dr))
+            # if max dr is larger than  5 median(dr) remove those points
+            if np.max(dr) > 5:
+                print("3")
+                r_cut = r_sort[np.argmax(dr)]
+                # Distance at which the contours is broken
+                #r_cut = r_shell[largest_shift]
+                print(r_cut)
+                index_cut = np.where(r_shell < r_cut)
+                N_dots = len(index_cut[0])
+                if N_dots > N_min:
+                    N_dots_r.append(len(index_cut[0]))
+                    index_dens1.append(index_dens[index_cut])
+                    r_shell_mean.append(np.median(r_shell[index_cut]))
+            else:
+                print("2")
+                N_dots_r.append(N_dots)
+                index_dens1.append(index_dens)
+                r_shell_mean.append(np.median(r_shell))
+        
     return index_dens1, r_shell_mean, N_dots_r
 
 
@@ -266,9 +299,9 @@ def compute_contours(r_ell, contours, x, y, z, figname):
     axis_ratios(np.array(R), np.array(s), np.array(q), "axis_ratios"+figname)    
     contour_plot(data_2d_all, 'contours_'+figname) 
     contour_plot(fit_2d_all, 'fit_contours_'+figname) 
-    return 0
+    return np.array(s), np.array(q)
 
-def compute_mhd(r_ell, contours, x, y, z):
+def compute_mhd(r_ell, contours, x, y, z, figname):
     d_MHD_r = []
     R = []
     for i in range(len(r_ell)):
@@ -286,127 +319,25 @@ def compute_mhd(r_ell, contours, x, y, z):
             dmhd = dMH(xyz_c, xyz_f)
         d_MHD_r.append(dmhd)
 
-    print(R, d_MHD_r)
+
     
     fig, ax = plt.subplots(1, 2, figsize=(10,6))
     ax[0].plot(R, d_MHD_r)
     ax[1].plot(np.array(R), np.array(d_MHD_r)/np.array(R))
-    plt.savefig('rho_r_mhd_r.pdf', bbox_inches='tight')
+    plt.savefig('mhd'+figname, bbox_inches='tight')
     plt.close()
     return np.array(R), np.array(d_MHD_r)
                                           
 if __name__ == "__main__":
     filename = sys.argv[1]    
     figname = sys.argv[2]    
+    outname = sys.argv[2]    
     n_contours = 50
     rho, xrho, yrho, zrho = load_data(filename)
+    # contour shapes and axis
     rho_contours, r_ell, N_dots = compute_density_contour(rho, n_contours, xrho, yrho, zrho)
-    compute_contours(r_ell, rho_contours, xrho, yrho, zrho, figname)
- 
-    """
-    dens_filename = sys.argv[1]    
-    pot_filename = sys.argv[2]    
-    figname = 'figure_test.png'
-    n_contours = 50
-
-
-    s_rho = []
-    q_rho = []
-    R_rho = []
-    s_pot = []
-    q_pot = []
-    R_pot = []
-    data_2d_all = []
-    fit_2d_all = []
-    data_2d_allp = []
-    fit_2d_allp = []
-    
-    d_MHD_r = []
-    d_MHD_p = []
-
-    #for i in range(5, 300, 5):
-    rho_data = np.loadtxt(dens_filename+".txt")
-    pot_data = np.loadtxt(pot_filename+".txt")
-    rho_all = rho_data[:,0]
-    xrho = rho_data[:,1]
-    yrho = rho_data[:,2]
-    zrho = rho_data[:,3]
-    pot_all = pot_data[:,0]
-    xpot = pot_data[:,1]
-    ypot = pot_data[:,2]
-    zpot = pot_data[:,3]
-
-    print("Done loading data")
-    rho_contours, r_ell, N_dots = compute_density_contour(rho_all, n_contours, xrho, yrho, zrho)
-    pot_contours, r_ellp, N_dotsp = compute_density_contour(pot_all, n_contours, xpot, ypot, zpot)
-    print(r_ell)
-    print(len(r_ell))
-    print(N_dots, N_dotsp)
-    
-    for i in range(len(r_ell)):
-        R_rho.append(r_ell[i])
-        eigves_rho, axis_rho, sr, qr = compute_halo_shape(rho_contours[i], xrho, yrho, zrho)
-        s_rho.append(sr)
-        q_rho.append(qr)
-        print('Done computing density halo shape')
-        #index_maxp = np.argmax(N_dotsp)
-        R_pot.append(r_ellp[i])
-        eigves_pot, axis_pot, sr_pot, qr_pot =  compute_halo_shape(pot_contours[i], xpot, ypot, zpot)
-        s_pot.append(sr_pot)
-        q_pot.append(qr_pot)
-
-        print('Done computing potential halo shape')
-        pos_ell = jellyfish.ellipse_3dcartesian(axis_rho, eigves_rho)
-        #data_2d, fit_2d = twod_fits_plot(x[rho_contours[index_max]], y[rho_contours[index_max]], z[rho_contours[index_max]], pos_ell[:,:,0].flatten(), pos_ell[:,:,1].flatten(), pos_ell[:,:,2].flatten())
-        #data_2d_all.append(data_2d)
-        #fit_2d_all.append(fit_2d)
-    
-        pos_ellp = jellyfish.ellipse_3dcartesian(axis_pot, eigves_pot)
-        data_2dp, fit_2dp = twod_fits_plot(xp[pot_contours[index_maxp]], yp[pot_contours[index_maxp]], zp[pot_contours[index_maxp]], pos_ellp[:,:,0].flatten(), pos_ellp[:,:,1].flatten(), pos_ellp[:,:,2].flatten())
-        #data_2d_allp.append(data_2dp)
-        #fit_2d_allp.append(fit_2dp)
-            
-        xyz_c = np.array([xrho[rho_contours[i]], yrho[rho_contours[i]], zrho[rho_contours[i]]]).T
-        xyz_f = np.array([pos_ell[:,:,0].flatten(), pos_ell[:,:,1].flatten(), pos_ell[:,:,2].flatten()]).T
-        print(len(xyz_c))
-        print(len(xyz_f))
-        print("Computing MHD density")
-        if len(xyz_c) > 10000:
-            rand_pos = np.random.randint(0, len(xyz_c), 10000)
-            dmhd = dMH(xyz_c[rand_pos], xyz_f)
-
-        else :
-            dmhd = dMH(xyz_c, xyz_f)
-        d_MHD_r.append(dmhd)
-        
-                
-        xyz_c = np.array([xpot[pot_contours[i]], ypot[pot_contours[i]], zpot[pot_contours[i]]]).T
-        xyz_f = np.array([pos_ellp[:,:,0].flatten(), pos_ellp[:,:,1].flatten(), pos_ellp[:,:,2].flatten()]).T
-        print("Computing MHD pot")
-        if len(xyz_c) > 10000:
-            rand_pos = np.random.randint(0, len(xyz_c), 10000)
-            dmhd = dMH(xyz_c[rand_pos], xyz_f)
-        else:
-            dmhd = dMH(xyz_c, xyz_f)
-        d_MHD_p.append(dmhd)
-
-    
-    plt.plot(R_rho, d_MHD_r)
-    plt.savefig('rho_r_mhd.pdf', bbox_inches='tight')
-    plt.close()
-    plt.plot(np.array(R_rho), np.array(d_MHD_r)/np.array(R_rho))
-    plt.savefig('rho_r_mhd_r.pdf', bbox_inches='tight')
-    plt.close()
-    
-    plt.plot(R_rho, d_MHD_p)
-    plt.savefig('pot_r_mhd.pdf', bbox_inches='tight')
-    plt.close()
-    plt.plot(np.array(R_rho), np.array(d_MHD_p)/np.array(R_rho))
-    plt.savefig('pot_r_mhd_r.pdf', bbox_inches='tight')
-    plt.close()
-    
-    #axis_ratios(np.array(R_rho), np.array(s_rho), np.array(q_rho), "rho"+figname)    
-    #axis_ratios(np.array(R_pot), np.array(s_pot), np.array(q_pot), "pot"+figname)    
-    contour_plot(data_2d_all, 'rho_contours_'+figname) 
-    contour_plot(data_2d_allp, 'pot_contours_'+figname) 
-    """
+    s, q = compute_contours(r_ell, rho_contours, xrho, yrho, zrho, figname)
+    # R, MHD
+    R, mhd = shape.compute_mhd(rell, contour, xrho, yrho, zrho, figname) 
+    np.savetxt(np.array([s, q]).T, "axis_ratios_"+outname)
+    np.savetxt(np.array([R, mhd]).T, "r_mhd_"+outname)
